@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "1068692630715",
+    "project_id": "calscape-8f383",
+    "storage_bucket": "calscape-8f383.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1068692630715:android:96c42d63391ae382f9cd9e",
+        "android_client_info": {
+          "package_name": "com.calscape"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1068692630715-sgas1u10mj9nh91dsikmtlap70053ql5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.calscape",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "1068692630715-ljqk4421kuak2aoeebltf34tihd0m4g7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDLT0vTZUwb6ZFeLiyRuuoUSL-0WlKPQrs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1068692630715-ljqk4421kuak2aoeebltf34tihd0m4g7.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

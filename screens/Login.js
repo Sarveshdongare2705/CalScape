@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   Image,
   StatusBar,
@@ -12,6 +12,9 @@ import {
 } from 'react-native';
 import {colors} from '../Colors';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
+import auth from '@react-native-firebase/auth';
+import firestore from '@react-native-firebase/firestore';
+import {GoogleSignin} from '@react-native-google-signin/google-signin';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -22,7 +25,16 @@ const Login = () => {
   const [uploading, setUploading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [err, setErr] = useState(false);
+  const [errMsg, setErrMsg] = useState('');
   const navigation = useNavigation();
+
+  //google part
+  useEffect(() => {
+    GoogleSignin.configure({
+      webClientId:
+        '1068692630715-ljqk4421kuak2aoeebltf34tihd0m4g7.apps.googleusercontent.com',
+    });
+  }, []);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -33,10 +45,11 @@ const Login = () => {
       setSuccess(false);
       setErr(false);
       setShowPassword(false);
+      setErrMsg('');
       setUploading(false);
     }, []),
   );
-  const handleSignIn = () => {
+  const handleSignIn = async () => {
     if (email == '') {
       setEmailErr('Email cannot be empty');
     } else {
@@ -49,14 +62,84 @@ const Login = () => {
     }
 
     if (email !== '' && password !== '') {
-      navigation.navigate('Home')
+      try {
+        setUploading(true);
+        const userCredential = await auth().signInWithEmailAndPassword(
+          email,
+          password,
+        );
+        console.log('SignIn Res : ', userCredential);
+        setErr(false);
+        setSuccess(true);
+        setUploading(false);
+        setTimeout(() => {
+          navigation.navigate('Home');
+        }, 500);
+      } catch (err) {
+        console.log('SignIn err:', err);
+        setUploading(false);
+        setSuccess(false);
+        setErr(true);
+        setErrMsg('Invalid Credentials');
+      }
     }
   };
+
+  const handleGoogleSignIn = async () => {
+    try {
+      setUploading(true);
+      await GoogleSignin.hasPlayServices();
+      const userInfo = await GoogleSignin.signIn();
+      const googleCredential = auth.GoogleAuthProvider.credential(
+        userInfo.idToken,
+      );
+      const userRef = firestore()
+        .collection('Users')
+        .where('email', '==', userInfo.user.email);
+      const userSnapshot = await userRef.get();
+
+      if (!userSnapshot.empty) {
+        const res = await auth().signInWithCredential(googleCredential);
+        setErr(false);
+        setSuccess(true);
+        setUploading(false);
+        setTimeout(() => {
+          navigation.navigate('Home');
+        }, 500);
+
+        await GoogleSignin.signOut();
+        await auth().signOut();
+      } else {
+        let errMessage = 'No account exists';
+        setErrMsg(errMessage);
+        setSuccess(false);
+        setUploading(false);
+        setErr(true);
+        await GoogleSignin.signOut();
+        await auth().signOut();
+      }
+    } catch (error) {
+      console.log('Google Sign-In error:', error);
+
+      let errMessage = 'Failed to sign in with Google. Please try again.';
+      if (error.code === 'auth/invalid-credential') {
+        errMessage = 'Invalid credentials provided.';
+      } else if (error.code === 'auth/no-current-user') {
+        errMessage = 'No user currently signed in.';
+      }
+
+      setErrMsg(errMessage);
+      setSuccess(false);
+      setErr(true);
+      setUploading(false);
+    }
+  };
+
   return (
     <View style={styles.container}>
       {err && (
         <View style={[styles.msg, {backgroundColor: colors.errorRed}]}>
-          <Text style={styles.msgtxt}>{'Invalid Credentials'}</Text>
+          <Text style={styles.msgtxt}>{errMsg}</Text>
           <TouchableOpacity onPress={() => setErr(false)}>
             <Image
               source={require('../assets/cross.png')}
@@ -155,7 +238,8 @@ const Login = () => {
                 width: '90%',
                 gap: 10,
               },
-            ]}>
+            ]}
+            onPress={handleGoogleSignIn}>
             <Image
               source={require('../assets/google.png')}
               style={styles.img2}
@@ -174,7 +258,8 @@ const Login = () => {
           </View>
           <View style={{flexDirection: 'row', gap: 5, alignItems: 'center'}}>
             <Text style={styles.txt}>Forgot Password</Text>
-            <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword')}>
+            <TouchableOpacity
+              onPress={() => navigation.navigate('ForgotPassword')}>
               <Text style={[styles.txt, {color: colors.s, fontWeight: '900'}]}>
                 Click Here
               </Text>
@@ -268,10 +353,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 7,
     zIndex: 999,
-    paddingHorizontal : 18
+    paddingHorizontal: 18,
   },
   msgtxt: {
     color: 'white',
     fontSize: 16,
+    width: '84%',
+    height: 23,
   },
 });

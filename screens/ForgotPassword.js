@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import {colors} from '../Colors';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
+import auth from '@react-native-firebase/auth';
 
 const ForgotPassword = () => {
   const [username, setUsername] = useState('');
@@ -46,14 +47,28 @@ const ForgotPassword = () => {
       setUploading(false);
     }, []),
   );
-  const handleForgotPassword = () => {
-    if (email == '') {
+
+
+  const handleForgotPassword = async () => {
+    if (email === '') {
       setEmailErr('Email cannot be empty');
     } else {
       setEmailErr(null);
     }
 
     if (email !== '') {
+      try {
+        setUploading(true);
+        await auth().sendPasswordResetEmail(email);
+        setSuccess(true);
+        setErrMsg('Password reset email sent successfully!');
+      } catch (error) {
+        setErrMsg(error.message); 
+        setSuccess(false);
+      } finally {
+        setUploading(false);
+        setErr(true);
+      }
     }
   };
   return (
@@ -71,7 +86,7 @@ const ForgotPassword = () => {
       )}
       {success && (
         <View style={[styles.msg, {backgroundColor: colors.successGreen}]}>
-          <Text style={styles.msgtxt}>Sign Up successful !</Text>
+          <Text style={styles.msgtxt}>{errMsg}</Text>
         </View>
       )}
       <View style={styles.section1}>
@@ -90,9 +105,10 @@ const ForgotPassword = () => {
               color: 'black',
               fontSize: 14,
               textAlign: 'center',
-              paddingHorizontal : 15
+              paddingHorizontal: 15,
             }}>
-            Enter the email address you used to Login with CalScape. You will receive an email to define a new password.
+            Enter the email address you used to Login with CalScape. You will
+            receive an email to define a new password.
           </Text>
         </View>
       </View>

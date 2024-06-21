@@ -1,0 +1,73 @@
+{
+  "migIndex": 1,
+  "data": [
+    {
+      "path": "assets/fonts/Livvic-Black.ttf",
+      "sha1": "ddfffffa87c190c233386d2edffd021dc2757d67"
+    },
+    {
+      "path": "assets/fonts/Livvic-BlackItalic.ttf",
+      "sha1": "e667b93bd34a4e81b1cb5bced12f99e38d1250d7"
+    },
+    {
+      "path": "assets/fonts/Livvic-Bold.ttf",
+      "sha1": "3d8ba45591c90009934f39a826f5409f1c8f53e8"
+    },
+    {
+      "path": "assets/fonts/Livvic-BoldItalic.ttf",
+      "sha1": "d0e5b8a0775ff0f7bd08a6b140fa3de0f805e3a0"
+    },
+    {
+      "path": "assets/fonts/Livvic-ExtraLight.ttf",
+      "sha1": "a353b29e17519a5c606e9799be402e27d2833998"
+    },
+    {
+      "path": "assets/fonts/Livvic-ExtraLightItalic.ttf",
+      "sha1": "54e6a13cf49f2ac5836eaabef683e8f024f467fb"
+    },
+    {
+      "path": "assets/fonts/Livvic-Italic.ttf",
+      "sha1": "ebe36e37fb03c8dff2d1b2d5c4f13840e37fcd01"
+    },
+    {
+      "path": "assets/fonts/Livvic-Light.ttf",
+      "sha1": "b255d92b418c7d07924371265afe1b47f641abd9"
+    },
+    {
+      "path": "assets/fonts/Livvic-LightItalic.ttf",
+      "sha1": "a5220a0b7b639eaa970eb546c002ba56a3cb67f7"
+    },
+    {
+      "path": "assets/fonts/Livvic-Medium.ttf",
+      "sha1": "1df6af0eebda203320bbdd4800b82e26f29ef14f"
+    },
+    {
+      "path": "assets/fonts/Livvic-MediumItalic.ttf",
+      "sha1": "8e1419b598f49f492415f67048767d049ea28d76"
+    },
+    {
+      "path": "assets/fonts/Livvic-Regular.ttf",
+      "sha1": "f4f988455a7d003879088d76b46a25d87ad3e9bb"
+    },
+    {
+      "path": "assets/fonts/Livvic-SemiBold.ttf",
+      "sha1": "7c5274f95f8b004546769ea138c000c8fc5f6548"
+    },
+    {
+      "path": "assets/fonts/Livvic-SemiBoldItalic.ttf",
+      "sha1": "a98bf20356b2206fd60d2dc5527bcdbe1d004736"
+    },
+    {
+      "path": "assets/fonts/Livvic-Thin.ttf",
+      "sha1": "d244689b56f79ce8021ae2365bb12f864303130e"
+    },
+    {
+      "path": "assets/fonts/Livvic-ThinItalic.ttf",
+      "sha1": "b6ecb0450b2212cac539212fd389ba68814b8725"
+    },
+    {
+      "path": "assets/fonts/OFL.txt",
+      "sha1": "81af480bb5ab5ff58026e53e74dadd5253a77ebb"
+    }
+  ]
+}

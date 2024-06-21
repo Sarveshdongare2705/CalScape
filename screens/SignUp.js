@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   Image,
   StatusBar,
@@ -12,6 +12,9 @@ import {
 } from 'react-native';
 import {colors} from '../Colors';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
+import auth from '@react-native-firebase/auth';
+import firestore from '@react-native-firebase/firestore';
+import {GoogleSignin} from '@react-native-google-signin/google-signin';
 
 const SignUp = () => {
   const [username, setUsername] = useState('');
@@ -28,6 +31,14 @@ const SignUp = () => {
   const [err, setErr] = useState(false);
   const [errMsg, setErrMsg] = useState('');
   const navigation = useNavigation();
+
+  //google part
+  useEffect(() => {
+    GoogleSignin.configure({
+      webClientId:
+        '1068692630715-ljqk4421kuak2aoeebltf34tihd0m4g7.apps.googleusercontent.com',
+    });
+  }, []);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -46,7 +57,7 @@ const SignUp = () => {
       setUploading(false);
     }, []),
   );
-  const handleSignUp = () => {
+  const handleSignUp = async () => {
     if (username == '') {
       setUsernameErr('Username cannot be empty');
     } else {
@@ -69,9 +80,122 @@ const SignUp = () => {
     }
 
     if (username !== '' && email !== '' && contact !== '' && password !== '') {
-      navigation.navigate('Questionnaire');
+      try {
+        setUploading(true);
+        const res = await auth().createUserWithEmailAndPassword(
+          email,
+          password,
+        );
+        console.log('SignUp Res : ', res);
+        if (res) {
+          const currentDate = new Date().toLocaleDateString('en-US', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
+          });
+          firestore().collection('Users').doc(res.user.uid).set({
+            uid: res.user.uid,
+            username: username,
+            email: email,
+            contact: contact,
+            member_since: currentDate,
+            profileImg: 'https://cdn.wallpapersafari.com/32/17/MbYS8Z.jpg',
+          });
+          setErr(false);
+          setSuccess(true);
+          setUploading(false);
+          setTimeout(() => {
+            navigation.navigate('Questionnaire', {
+              uid: res.user.uid,
+              from: 'signup',
+            });
+          }, 400);
+        }
+      } catch (err) {
+        console.log('Sign up err:', err);
+        let errMessage = 'Failed to sign up. Please try again.';
+        if (err.code === 'auth/email-already-in-use') {
+          errMessage = 'Email already in use.';
+        }
+        if (err.code === 'auth/weak-password') {
+          errMessage = 'Password is weak.';
+        }
+        if (err.code === 'auth/invalid-email') {
+          errMessage = 'Entered email is invalid';
+        }
+        setUploading(false);
+        setErrMsg(errMessage);
+        setSuccess(false);
+        setErr(true);
+      }
     }
   };
+
+  const handleGoogleSignUp = async () => {
+    try {
+      setUploading(true);
+      await GoogleSignin.hasPlayServices();
+      const userInfo = await GoogleSignin.signIn();
+      const googleCredential = auth.GoogleAuthProvider.credential(
+        userInfo.idToken,
+      );
+
+      const userRef = firestore()
+        .collection('Users')
+        .where('email', '==', userInfo.user.email);
+      const userSnapshot = await userRef.get();
+
+      if (!userSnapshot.empty) {
+        setSuccess(false);
+        setErr(true);
+        setErrMsg('Account already exists with selected email');
+        setUploading(false);
+        await GoogleSignin.signOut();
+        await auth().signOut();
+        return;
+      }
+
+      const res = await auth().signInWithCredential(googleCredential);
+
+      if (res) {
+        const currentDate = new Date().toLocaleDateString('en-US', {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric',
+        });
+        const newUserRef = firestore().collection('Users').doc(res.user.uid);
+        await newUserRef.set({
+          uid: res.user.uid,
+          email: userInfo.user.email,
+          contact: contact,
+          member_since: currentDate,
+        });
+        setErr(false);
+        setSuccess(true);
+        setTimeout(() => {
+          navigation.navigate('Questionnaire');
+        }, 500);
+        await GoogleSignin.signOut();
+        await auth().signOut();
+      }
+      setUploading(false);
+    } catch (error) {
+      console.log('Google Sign-In error:', error);
+      let errMessage = 'Failed to sign in with Google. Please try again.';
+      if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+        errMessage = 'User cancelled the login process.';
+      } else if (error.code === statusCodes.IN_PROGRESS) {
+        errMessage = 'Sign in in progress.';
+      } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+        errMessage = 'Google Play Services not available or outdated.';
+      }
+      setErrMsg(errMessage);
+      setSuccess(false);
+      setErr(true);
+      setUploading(false);
+    }
+  };
+
   return (
     <View style={styles.container}>
       {err && (
@@ -123,7 +247,7 @@ const SignUp = () => {
                 placeholder="Enter your Username"
                 placeholderTextColor="gray"
                 style={styles.inputSection}
-                maxLength={50}
+                maxLength={18}
                 value={username}
                 onChangeText={text => setUsername(text)}
               />
@@ -140,7 +264,7 @@ const SignUp = () => {
                 placeholder="Enter your Email"
                 placeholderTextColor="gray"
                 style={styles.inputSection}
-                maxLength={50}
+                maxLength={40}
                 value={email}
                 onChangeText={text => setEmail(text)}
               />
@@ -157,10 +281,10 @@ const SignUp = () => {
                 placeholder="Enter your Mobile Number"
                 placeholderTextColor="gray"
                 style={styles.inputSection}
-                maxLength={50}
+                maxLength={10}
                 value={contact}
                 onChangeText={text => setContact(text)}
-                keyboardType='numeric'
+                keyboardType="numeric"
               />
             </View>
             {contactErr && <Text style={styles.err}>{contactErr}</Text>}
@@ -175,7 +299,7 @@ const SignUp = () => {
                 placeholder="Enter your password"
                 placeholderTextColor="gray"
                 style={styles.inputSection}
-                maxLength={50}
+                maxLength={20}
                 value={password}
                 onChangeText={text => setPassword(text)}
                 secureTextEntry={!showPassword}
@@ -214,7 +338,8 @@ const SignUp = () => {
                 width: '90%',
                 gap: 10,
               },
-            ]}>
+            ]}
+            onPress={handleGoogleSignUp}>
             <Image
               source={require('../assets/google.png')}
               style={styles.img2}
@@ -324,5 +449,7 @@ const styles = StyleSheet.create({
   msgtxt: {
     color: 'white',
     fontSize: 16,
+    width: '84%',
+    height: 23,
   },
 });

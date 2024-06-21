@@ -14,6 +14,23 @@
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		7699B88040F8A987B510C191 /* libPods-CalScape-CalScapeTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 19F6CBCC0A4E27FBF8BF4A61 /* libPods-CalScape-CalScapeTests.a */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
+		6229DF406F68426699FE5C5C /* Livvic-Black.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 7F5809D22D7748098A5E027A /* Livvic-Black.ttf */; };
+		1DF8947421114223951DF953 /* Livvic-BlackItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = D766D3C8FECC414B9D26CED8 /* Livvic-BlackItalic.ttf */; };
+		401FBE057C1346B5807E091B /* Livvic-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = C411513E4D8E43FEA7D89C5B /* Livvic-Bold.ttf */; };
+		D9EA16E2F264436F9D9A0043 /* Livvic-BoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = B5FCDCD04680434286DBF4AE /* Livvic-BoldItalic.ttf */; };
+		7A4717405EC74E9B92F0D39F /* Livvic-ExtraLight.ttf in Resources */ = {isa = PBXBuildFile; fileRef = B0184E6762CF4BFA9FCC712D /* Livvic-ExtraLight.ttf */; };
+		BCBC551B843141C69DC8AA36 /* Livvic-ExtraLightItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 6B118FF406FE4A42A7A055F1 /* Livvic-ExtraLightItalic.ttf */; };
+		E6E9F0B01BFC473C9203D65A /* Livvic-Italic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1BD48310E22143539480E083 /* Livvic-Italic.ttf */; };
+		D469B00EB9DA4A71874686F9 /* Livvic-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = BA9977C36B3D48BFA5D71221 /* Livvic-Light.ttf */; };
+		B1C81D000837408981B906AA /* Livvic-LightItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = CFB5B52BD2F54EC8848001E2 /* Livvic-LightItalic.ttf */; };
+		CD94391568D54A169CE0EE7E /* Livvic-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = D466B5D79D0E42AAA34CC944 /* Livvic-Medium.ttf */; };
+		F61CD5746EF345AF8DDFA41D /* Livvic-MediumItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 6A8177BF1DB440488C1C23A8 /* Livvic-MediumItalic.ttf */; };
+		9D184EC00C094CD5AADBD8B7 /* Livvic-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = D4842C22C22742A9B74F2DC3 /* Livvic-Regular.ttf */; };
+		A8C0543C36D347788016F5D9 /* Livvic-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = AEF0FA4DA1644A57816F5791 /* Livvic-SemiBold.ttf */; };
+		99EC4D62C5154969B8572FF6 /* Livvic-SemiBoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = FE93F8A3F4B14F7288079C40 /* Livvic-SemiBoldItalic.ttf */; };
+		9678A79883F949CDA49CC6F3 /* Livvic-Thin.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 521E94D5FFF547FCABA25224 /* Livvic-Thin.ttf */; };
+		26238BCE46E741D7928A8F50 /* Livvic-ThinItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = C3FF34A84A30436B90C5A799 /* Livvic-ThinItalic.ttf */; };
+		61FFC8E26CC240859E49DEB3 /* OFL.txt in Resources */ = {isa = PBXBuildFile; fileRef = 9768504262E246CEA9879D89 /* OFL.txt */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -36,7 +53,7 @@
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = CalScape/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = CalScape/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = CalScape/main.m; sourceTree = "<group>"; };
-	    13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = PrivacyInfo.xcprivacy; path = CalScape/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = PrivacyInfo.xcprivacy; path = CalScape/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		19F6CBCC0A4E27FBF8BF4A61 /* libPods-CalScape-CalScapeTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-CalScape-CalScapeTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		3B4392A12AC88292D35C810B /* Pods-CalScape.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CalScape.debug.xcconfig"; path = "Target Support Files/Pods-CalScape/Pods-CalScape.debug.xcconfig"; sourceTree = "<group>"; };
 		5709B34CF0A7D63546082F79 /* Pods-CalScape.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CalScape.release.xcconfig"; path = "Target Support Files/Pods-CalScape/Pods-CalScape.release.xcconfig"; sourceTree = "<group>"; };
@@ -45,6 +62,23 @@
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = CalScape/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		89C6BE57DB24E9ADA2F236DE /* Pods-CalScape-CalScapeTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CalScape-CalScapeTests.release.xcconfig"; path = "Target Support Files/Pods-CalScape-CalScapeTests/Pods-CalScape-CalScapeTests.release.xcconfig"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
+		7F5809D22D7748098A5E027A /* Livvic-Black.ttf */ = {isa = PBXFileReference; name = "Livvic-Black.ttf"; path = "../assets/fonts/Livvic-Black.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		D766D3C8FECC414B9D26CED8 /* Livvic-BlackItalic.ttf */ = {isa = PBXFileReference; name = "Livvic-BlackItalic.ttf"; path = "../assets/fonts/Livvic-BlackItalic.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		C411513E4D8E43FEA7D89C5B /* Livvic-Bold.ttf */ = {isa = PBXFileReference; name = "Livvic-Bold.ttf"; path = "../assets/fonts/Livvic-Bold.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		B5FCDCD04680434286DBF4AE /* Livvic-BoldItalic.ttf */ = {isa = PBXFileReference; name = "Livvic-BoldItalic.ttf"; path = "../assets/fonts/Livvic-BoldItalic.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		B0184E6762CF4BFA9FCC712D /* Livvic-ExtraLight.ttf */ = {isa = PBXFileReference; name = "Livvic-ExtraLight.ttf"; path = "../assets/fonts/Livvic-ExtraLight.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		6B118FF406FE4A42A7A055F1 /* Livvic-ExtraLightItalic.ttf */ = {isa = PBXFileReference; name = "Livvic-ExtraLightItalic.ttf"; path = "../assets/fonts/Livvic-ExtraLightItalic.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		1BD48310E22143539480E083 /* Livvic-Italic.ttf */ = {isa = PBXFileReference; name = "Livvic-Italic.ttf"; path = "../assets/fonts/Livvic-Italic.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		BA9977C36B3D48BFA5D71221 /* Livvic-Light.ttf */ = {isa = PBXFileReference; name = "Livvic-Light.ttf"; path = "../assets/fonts/Livvic-Light.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		CFB5B52BD2F54EC8848001E2 /* Livvic-LightItalic.ttf */ = {isa = PBXFileReference; name = "Livvic-LightItalic.ttf"; path = "../assets/fonts/Livvic-LightItalic.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		D466B5D79D0E42AAA34CC944 /* Livvic-Medium.ttf */ = {isa = PBXFileReference; name = "Livvic-Medium.ttf"; path = "../assets/fonts/Livvic-Medium.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		6A8177BF1DB440488C1C23A8 /* Livvic-MediumItalic.ttf */ = {isa = PBXFileReference; name = "Livvic-MediumItalic.ttf"; path = "../assets/fonts/Livvic-MediumItalic.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		D4842C22C22742A9B74F2DC3 /* Livvic-Regular.ttf */ = {isa = PBXFileReference; name = "Livvic-Regular.ttf"; path = "../assets/fonts/Livvic-Regular.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		AEF0FA4DA1644A57816F5791 /* Livvic-SemiBold.ttf */ = {isa = PBXFileReference; name = "Livvic-SemiBold.ttf"; path = "../assets/fonts/Livvic-SemiBold.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		FE93F8A3F4B14F7288079C40 /* Livvic-SemiBoldItalic.ttf */ = {isa = PBXFileReference; name = "Livvic-SemiBoldItalic.ttf"; path = "../assets/fonts/Livvic-SemiBoldItalic.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		521E94D5FFF547FCABA25224 /* Livvic-Thin.ttf */ = {isa = PBXFileReference; name = "Livvic-Thin.ttf"; path = "../assets/fonts/Livvic-Thin.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		C3FF34A84A30436B90C5A799 /* Livvic-ThinItalic.ttf */ = {isa = PBXFileReference; name = "Livvic-ThinItalic.ttf"; path = "../assets/fonts/Livvic-ThinItalic.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		9768504262E246CEA9879D89 /* OFL.txt */ = {isa = PBXFileReference; name = "OFL.txt"; path = "../assets/fonts/OFL.txt"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -124,6 +158,7 @@
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
 				BBD78D7AC51CEA395F1C20DB /* Pods */,
+				70D9BBF1C5ED40E58B5D17EE /* Resources */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -149,6 +184,31 @@
 			);
 			path = Pods;
 			sourceTree = "<group>";
+		};
+		70D9BBF1C5ED40E58B5D17EE /* Resources */ = {
+			isa = "PBXGroup";
+			children = (
+				7F5809D22D7748098A5E027A /* Livvic-Black.ttf */,
+				D766D3C8FECC414B9D26CED8 /* Livvic-BlackItalic.ttf */,
+				C411513E4D8E43FEA7D89C5B /* Livvic-Bold.ttf */,
+				B5FCDCD04680434286DBF4AE /* Livvic-BoldItalic.ttf */,
+				B0184E6762CF4BFA9FCC712D /* Livvic-ExtraLight.ttf */,
+				6B118FF406FE4A42A7A055F1 /* Livvic-ExtraLightItalic.ttf */,
+				1BD48310E22143539480E083 /* Livvic-Italic.ttf */,
+				BA9977C36B3D48BFA5D71221 /* Livvic-Light.ttf */,
+				CFB5B52BD2F54EC8848001E2 /* Livvic-LightItalic.ttf */,
+				D466B5D79D0E42AAA34CC944 /* Livvic-Medium.ttf */,
+				6A8177BF1DB440488C1C23A8 /* Livvic-MediumItalic.ttf */,
+				D4842C22C22742A9B74F2DC3 /* Livvic-Regular.ttf */,
+				AEF0FA4DA1644A57816F5791 /* Livvic-SemiBold.ttf */,
+				FE93F8A3F4B14F7288079C40 /* Livvic-SemiBoldItalic.ttf */,
+				521E94D5FFF547FCABA25224 /* Livvic-Thin.ttf */,
+				C3FF34A84A30436B90C5A799 /* Livvic-ThinItalic.ttf */,
+				9768504262E246CEA9879D89 /* OFL.txt */,
+			);
+			name = Resources;
+			sourceTree = "<group>";
+			path = "";
 		};
 /* End PBXGroup section */
 
@@ -245,6 +305,23 @@
 			files = (
 				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
+				6229DF406F68426699FE5C5C /* Livvic-Black.ttf in Resources */,
+				1DF8947421114223951DF953 /* Livvic-BlackItalic.ttf in Resources */,
+				401FBE057C1346B5807E091B /* Livvic-Bold.ttf in Resources */,
+				D9EA16E2F264436F9D9A0043 /* Livvic-BoldItalic.ttf in Resources */,
+				7A4717405EC74E9B92F0D39F /* Livvic-ExtraLight.ttf in Resources */,
+				BCBC551B843141C69DC8AA36 /* Livvic-ExtraLightItalic.ttf in Resources */,
+				E6E9F0B01BFC473C9203D65A /* Livvic-Italic.ttf in Resources */,
+				D469B00EB9DA4A71874686F9 /* Livvic-Light.ttf in Resources */,
+				B1C81D000837408981B906AA /* Livvic-LightItalic.ttf in Resources */,
+				CD94391568D54A169CE0EE7E /* Livvic-Medium.ttf in Resources */,
+				F61CD5746EF345AF8DDFA41D /* Livvic-MediumItalic.ttf in Resources */,
+				9D184EC00C094CD5AADBD8B7 /* Livvic-Regular.ttf in Resources */,
+				A8C0543C36D347788016F5D9 /* Livvic-SemiBold.ttf in Resources */,
+				99EC4D62C5154969B8572FF6 /* Livvic-SemiBoldItalic.ttf in Resources */,
+				9678A79883F949CDA49CC6F3 /* Livvic-Thin.ttf in Resources */,
+				26238BCE46E741D7928A8F50 /* Livvic-ThinItalic.ttf in Resources */,
+				61FFC8E26CC240859E49DEB3 /* OFL.txt in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
