@@ -10,6 +10,20 @@ const BottomNavigation = () => {
   const navigation = useNavigation();
   const [currentUser, setCurrentUser] = useState(null);
   const [userData, setUserData] = useState(null);
+  const [adminUid, setAdminUid] = useState(null);
+
+  const fetchAdmin = async () => {
+    const docRef = await firestore().collection('Admin').doc('admin');
+    const doc = await docRef.get();
+    const data = doc.data();
+    setAdminUid(data.uid);
+  };
+
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchAdmin();
+    }, []),
+  );
 
   const fetchUserData = async user => {
     const userSnapShot = await firestore()
@@ -43,17 +57,26 @@ const BottomNavigation = () => {
         <Image source={require('../assets/home.png')} style={styles.img} />
         <Text style={styles.txt}>Home</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={[styles.button]} onPress={() => navigation.navigate('Analytics' , {uid: userData.uid})}>
-        <Image source={require('../assets/analytics.png')} style={styles.img} />
-        <Text style={styles.txt}>Analytics</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={[styles.button]}>
-        <Image
-          source={require('../assets/suggestions.png')}
-          style={styles.img}
-        />
-        <Text style={styles.txt}>Suggestions</Text>
-      </TouchableOpacity>
+      {userData && userData.uid !== adminUid && (
+        <TouchableOpacity
+          style={[styles.button]}
+          onPress={() => navigation.navigate('Analytics', {uid: userData.uid})}>
+          <Image
+            source={require('../assets/analytics.png')}
+            style={styles.img}
+          />
+          <Text style={styles.txt}>Analytics</Text>
+        </TouchableOpacity>
+      )}
+      {userData && userData.uid !== adminUid && (
+        <TouchableOpacity style={[styles.button]}>
+          <Image
+            source={require('../assets/suggestions.png')}
+            style={styles.img}
+          />
+          <Text style={styles.txt}>Suggestions</Text>
+        </TouchableOpacity>
+      )}
       <TouchableOpacity
         style={[styles.button]}
         onPress={() =>
@@ -65,7 +88,11 @@ const BottomNavigation = () => {
         <Image source={require('../assets/query.png')} style={styles.img} />
         <Text style={styles.txt}>Queries</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={[styles.button]}>
+      <TouchableOpacity
+        style={[styles.button]}
+        onPress={() =>
+          navigation.navigate('LearningCentre', {userData: userData})
+        }>
         <Image source={require('../assets/learn.png')} style={styles.img} />
         <Text style={styles.txt}>Learn</Text>
       </TouchableOpacity>
@@ -80,12 +107,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingHorizontal: 5,
-    paddingVertical: 5,
+    paddingVertical: 7,
     backgroundColor: '#78C8CC',
-    width: '98%',
+    width: '100%',
     alignItems: 'center',
-    margin : '1%',
-    borderRadius : 12
+    borderRadius: 3,
   },
   button: {
     flex: 1,

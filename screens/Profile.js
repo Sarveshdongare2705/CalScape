@@ -22,6 +22,7 @@ import ImagePicker from 'react-native-image-crop-picker';
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
 import storage from '@react-native-firebase/storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Profile = () => {
   const route = useRoute();
@@ -43,6 +44,14 @@ const Profile = () => {
   const [updateModal, showUpdateModal] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [val, setVal] = useState(0);
+
+  const [adminUid, setAdminUid] = useState(null);
+  const fetchAdmin = async () => {
+    const docRef = await firestore().collection('Admin').doc('admin');
+    const doc = await docRef.get();
+    const data = doc.data();
+    setAdminUid(data.uid);
+  };
 
   //current user
   const fetchCurrentuserData = async user => {
@@ -110,18 +119,39 @@ const Profile = () => {
     useCallback(() => {
       setUserData(null);
       const unsubscribe = auth().onAuthStateChanged(async user => {
-        console.log('User', user);
         if (user) {
+          fetchAdmin()
           setCurrentUser(user);
-          const userDetails = await fetchUserData();
-          fetchFootprint(uid);
-          const currentUserDetails = await fetchCurrentuserData(user);
-          setCurrentUserData(currentUserDetails);
-          setUserData(userDetails);
-          if (userDetails) {
-            setEmail(userDetails.email);
-            setUsername(userDetails.username);
-            setContact(userDetails.contact);
+          const prevUid = await AsyncStorage.getItem('user');
+          const prevCurrentUser = await AsyncStorage.getItem('currentUser');
+          const prevCurrentUserData = JSON.parse(prevCurrentUser);
+          const prevCUid = prevCurrentUserData.uid;
+          if (uid === prevUid && user.uid === prevCUid) {
+            setCurrentUserData(prevCurrentUserData);
+            const data = await AsyncStorage.getItem('data');
+            const parseData = JSON.parse(data);
+            fetchFootprint(uid);
+            setUserData(parseData);
+            setEmail(parseData.email);
+            setUsername(parseData.username);
+            setContact(parseData.contact);
+          } else {
+            const currentUserDetails = await fetchCurrentuserData(user);
+            await AsyncStorage.setItem(
+              'currentUser',
+              JSON.stringify(currentUserDetails),
+            );
+            setCurrentUserData(currentUserDetails);
+            const userDetails = await fetchUserData();
+            await AsyncStorage.setItem('user', uid);
+            await AsyncStorage.setItem('data', JSON.stringify(userDetails));
+            fetchFootprint(uid);
+            setUserData(userDetails);
+            if (userDetails) {
+              setEmail(userDetails.email);
+              setUsername(userDetails.username);
+              setContact(userDetails.contact);
+            }
           }
         }
       });
@@ -131,9 +161,6 @@ const Profile = () => {
 
   useFocusEffect(
     React.useCallback(() => {
-      setUsername('');
-      setEmail('');
-      setContact('');
       setUsernameErr(null);
       setEmailErr(null);
       setContactErr(null);
@@ -190,6 +217,8 @@ const Profile = () => {
         setUploading(false);
       }
     }
+    const userDetails = await fetchUserData();
+    await AsyncStorage.setItem('data', JSON.stringify(userDetails));
   };
 
   const handleLogout = async () => {
@@ -539,49 +568,51 @@ const Profile = () => {
           </Text>
         </View>
       </View>
-      <View
-        style={{
-          width: '94%',
-          height: 100,
-          backgroundColor: '#228B22',
-          opacity: 0.8,
-          borderRadius: 10,
-          flexDirection: 'row',
-          alignItems: 'center',
-          gap: 10,
-          padding: 15,
-          marginLeft : '3%',
-          marginBottom : 10,
-          marginTop : -10,
-        }}>
-        <Image
-          source={require('../assets/footprint.png')}
-          style={{width: 60, height: 66}}
-        />
+      { uid !== adminUid && (
         <View
           style={{
-            flexDirection: 'column',
-            alignItems: 'flex-start',
-            width: '75%',
+            width: '94%',
+            height: 100,
+            backgroundColor: '#228B22',
+            opacity: 0.8,
+            borderRadius: 10,
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 10,
+            padding: 15,
+            marginLeft: '3%',
+            marginBottom: 10,
+            marginTop: -10,
           }}>
-          <Text
+          <Image
+            source={require('../assets/footprint.png')}
+            style={{width: 60, height: 66}}
+          />
+          <View
             style={{
-              fontSize: 20,
-              color: 'black',
-              fontFamily: colors.font2,
+              flexDirection: 'column',
+              alignItems: 'flex-start',
+              width: '75%',
             }}>
-            Current footprint
-          </Text>
-          <Text
-            style={{
-              fontSize: 24,
-              color: 'black',
-              fontFamily: colors.font3,
-            }}>
-            {val} kg CO2 e
-          </Text>
+            <Text
+              style={{
+                fontSize: 20,
+                color: 'black',
+                fontFamily: colors.font2,
+              }}>
+              Current footprint
+            </Text>
+            <Text
+              style={{
+                fontSize: 24,
+                color: 'black',
+                fontFamily: colors.font3,
+              }}>
+              {val} kg CO2 e
+            </Text>
+          </View>
         </View>
-      </View>
+      )}
       {currentUserData && userData && currentUserData.uid === userData.uid && (
         <ScrollView style={{width: '100%', paddingHorizontal: 15}}>
           <TouchableOpacity

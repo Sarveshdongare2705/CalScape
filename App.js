@@ -24,6 +24,9 @@ import Queries from './screens/Queries';
 import ImageView from './screens/Image';
 import Analytics from './screens/Analytics';
 import LeaderBoard from './screens/LeaderBoard';
+import LearningCentre from './screens/LearningCentre';
+import Module from './screens/Module';
+import NewQuiz from './screens/NewQuiz';
 
 const Stack = createNativeStackNavigator();
 const App = () => {
@@ -73,6 +76,9 @@ const App = () => {
         <Stack.Screen name="Queries" component={Queries} />
         <Stack.Screen name="Image" component={ImageView} />
         <Stack.Screen name="LeaderBoard" component={LeaderBoard} />
+        <Stack.Screen name="LearningCentre" component={LearningCentre} />
+        <Stack.Screen name="Module" component={Module} />
+        <Stack.Screen name="NewQuiz" component={NewQuiz} />
       </Stack.Navigator>
     </NavigationContainer>
   );

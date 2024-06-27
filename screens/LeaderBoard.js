@@ -6,6 +6,10 @@ import {
   StyleSheet,
   Image,
   TouchableOpacity,
+  ImageBackground,
+  StatusBar,
+  ActivityIndicator,
+  ScrollView,
 } from 'react-native';
 import firestore from '@react-native-firebase/firestore';
 import {colors} from '../Colors';
@@ -18,8 +22,11 @@ const Leaderboard = () => {
   const navigation = useNavigation();
   const [users, setUsers] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [total, setTotal] = useState(null);
 
   useEffect(() => {
+    setLoading(true);
     const fetchUsers = async () => {
       const currentTime = new Date();
       const currentMonth = currentTime.getMonth() + 1;
@@ -60,8 +67,10 @@ const Leaderboard = () => {
       // Resolve all promises and filter users with footprint values >= 100
       const usersWithFootprint = await Promise.all(promises);
       const filteredUsers = usersWithFootprint.filter(
-        user => user.footprintVal >= 200,
+        user => user.footprintVal >= 250,
       );
+
+      setTotal(filteredUsers.length);
 
       // Sort users based on footprint value in ascending order
       filteredUsers.sort((a, b) => a.footprintVal - b.footprintVal);
@@ -75,6 +84,7 @@ const Leaderboard = () => {
       if (currentUserData) {
         setCurrentUser(currentUserData);
       }
+      setLoading(false);
     };
 
     fetchUsers();
@@ -83,9 +93,9 @@ const Leaderboard = () => {
   const renderTopUser = (user, index) => {
     const colorsMap = ['orange', colors.p, colors.s];
     const positions = [
-      {top: 50, left: '40%'},
-      {top: 90, left: '5%'},
-      {top: 130, right: '5%'},
+      {top: 160, left: '40%'},
+      {top: 190, left: '5%'},
+      {top: 220, right: '5%'},
     ];
 
     return (
@@ -117,20 +127,20 @@ const Leaderboard = () => {
         <Text style={styles.name}>{user.username}</Text>
         <View
           style={{
-            height: index === 0 ? 200 : index === 1 ? 160 : 100,
+            height: index === 0 ? 130 : index === 1 ? 100 : 70,
             borderWidth: 1,
             width: 96,
-            borderBottomColor: 'white',
-            borderTopColor: 'lightgray',
-            borderLeftColor: 'lightgray',
-            borderRightColor: 'lightgray',
+            borderBottomColor: 'transparent',
+            borderTopColor: 'black',
+            borderLeftColor: 'black',
+            borderRightColor: 'black',
             alignItems: 'center',
             padding: 12,
-            marginTop: 10,
+            marginTop: 5,
           }}>
           <Text
             style={{
-              fontSize: 50,
+              fontSize: 40,
               fontFamily: colors.font3,
               color: colorsMap[index],
             }}>
@@ -141,7 +151,7 @@ const Leaderboard = () => {
     );
   };
 
-  const renderItem = ({item, index}) => (
+  const renderItem = (item, index) => (
     <View style={styles.rowItem}>
       <View
         style={{
@@ -149,8 +159,14 @@ const Leaderboard = () => {
           alignItems: 'center',
           width: '78%',
         }}>
-        <Text style={{fontSize: 21, color: 'black', fontFamily: colors.font2}}>
-          {index + 4}
+        <Text
+          style={{
+            fontSize: 18,
+            color: 'white',
+            fontFamily: colors.font2,
+            maxWidth: '20%',
+          }}>
+          #{index + 4}
         </Text>
         <TouchableOpacity
           onPress={() => navigation.navigate('Profile', {uid: item.uid})}>
@@ -159,7 +175,7 @@ const Leaderboard = () => {
         <Text
           style={{
             width: '50%',
-            color: 'black',
+            color: 'white',
             fontSize: 16,
             fontFamily: colors.font4,
           }}>
@@ -168,66 +184,139 @@ const Leaderboard = () => {
       </View>
       <Text style={styles.value}>{item.footprintVal.toFixed(0)}</Text>
     </View>
-    
   );
+
+  const [percentage, setPercentage] = useState(0);
+  const calculatePercentage = rank => {
+    if (total) {
+      const behind = total - rank;
+      const val = (behind / (total - 1)) * 100;
+      return val.toFixed(2);
+    }
+    return 0;
+  };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Leaderboard</Text>
-      {users.slice(0, 3).map((user, index) => renderTopUser(user, index))}
-      <View style={{marginTop: 320}}>
-        <FlatList
-          data={users.slice(3)}
-          renderItem={renderItem}
-          keyExtractor={item => item.id}
-        />
-      </View>
-      {currentUser && (
-        <View style={styles.currentUserContainer}>
+      <StatusBar backgroundColor={'#d4d4d4'} barStyle={'dark-content'} />
+      <ImageBackground
+        style={{
+          width: '100%',
+          height: '100%',
+        }}
+        source={require('../assets/lb3.jpg')}>
+        <View
+          style={{
+            width: '100%',
+            height: '100%',
+            paddingVertical: 10,
+            paddingHorizontal: 10,
+          }}>
           <View
-            style={[
-              styles.rowItem,
-              {backgroundColor: 'orange' , borderColor : 'orange'},
-            ]}>
-            <View
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                width: '78%',
-              }}>
-              <Text
-                style={{
-                  fontSize: 21,
-                  color: 'black',
-                  fontFamily: colors.font2,
-                }}>
-                {users.findIndex(user => user.id === currentUser.id) + 1}
-              </Text>
-              <TouchableOpacity
-                onPress={() =>
-                  navigation.navigate('Profile', {uid: currentUser.uid})
-                }>
-                <Image
-                  source={{uri: currentUser.profileImg}}
-                  style={styles.profileImage}
-                />
-              </TouchableOpacity>
-              <Text
-                style={{
-                  width: '66%',
-                  color: 'black',
-                  fontSize: 16,
-                  fontFamily: colors.font4,
-                }}>
-                {currentUser.username}
-              </Text>
-            </View>
-            <Text style={styles.value}>
-              {currentUser.footprintVal.toFixed(0)}
-            </Text>
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 7,
+              marginBottom: 3,
+            }}>
+            <TouchableOpacity onPress={() => navigation.goBack()}>
+              <Image
+                source={require('../assets/backButton.png')}
+                style={{width: 27, height: 27}}
+              />
+            </TouchableOpacity>
+            <Text style={styles.title}>Leaderboard</Text>
           </View>
+          <Text style={{fontSize: 11, color: 'gray' , fontFamily : colors.font4}}>
+            {
+              '[Note : Your footprint value should be greater than 250kg CO2 e to appear on leaderboard]'
+            }
+          </Text>
+          {!loading && currentUser ? (
+            <View style={styles.currentUserContainer}>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  width: '100%',
+                  height: '100%',
+                  justifyContent: 'space-between',
+                }}>
+                <Text
+                  style={{
+                    fontSize: 17,
+                    color: 'black',
+                    fontFamily: colors.font3,
+                    textAlign: 'center',
+                    backgroundColor: 'lightgray',
+                    padding: 10,
+                    width: '25%',
+                    height: 48,
+                    borderRadius: 7,
+                    opacity: 0.7,
+                  }}>
+                  #{users.findIndex(user => user.id === currentUser.id) + 1}
+                </Text>
+                <Text
+                  style={{
+                    fontSize: 14,
+                    color: 'black',
+                    fontFamily: colors.font2,
+                    textAlign: 'flex-start',
+                    padding: 10,
+                    borderRadius: 3,
+                    opacity: 0.7,
+                    width: '75%',
+                  }}>
+                  {`You are doing better than ${calculatePercentage(
+                    users.findIndex(user => user.id === currentUser.id) + 1,
+                  )}% of other players!`}
+                </Text>
+              </View>
+            </View>
+          ) : ( !loading && 
+            <View style={styles.currentUserContainer}>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  width: '100%',
+                  height: '100%',
+                  justifyContent: 'space-between',
+                }}>
+                <Text
+                  style={{
+                    fontSize: 14,
+                    color: 'black',
+                    fontFamily: colors.font2,
+                    textAlign: 'flex-start',
+                    padding: 10,
+                    borderRadius: 3,
+                    opacity: 0.7,
+                    width: '80%',
+                  }}>
+                  {`You are currently not present in the leaderboard`}
+                </Text>
+              </View>
+            </View>
+          )}
+          {loading ? (
+            <ActivityIndicator
+              color={'black'}
+              size={27}
+              style={{position: 'absolute', top: 75, left: 12}}
+            />
+          ) : (
+            users.slice(0, 3).map((user, index) => renderTopUser(user, index))
+          )}
+          {!loading && (
+            <ScrollView style={{marginTop: 270}}>
+              {users.slice(3).map((user, index) => renderItem(user, index))}
+              <View style={{height: 200}}></View>
+            </ScrollView>
+          )}
         </View>
-      )}
+      </ImageBackground>
       <View style={{position: 'absolute', bottom: 0, left: 0, right: 0}}>
         <BottomNavigation />
       </View>
@@ -239,14 +328,10 @@ export default Leaderboard;
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     backgroundColor: 'white',
-    paddingHorizontal: 12,
-    paddingVertical: 15,
   },
   title: {
     fontSize: 24,
-    marginBottom: 20,
     color: 'black',
     fontFamily: colors.font2,
   },
@@ -259,7 +344,7 @@ const styles = StyleSheet.create({
   },
   value: {
     fontSize: 16,
-    color: 'black',
+    color: 'white',
     fontFamily: colors.font2,
     borderRadius: 7,
     margin: 5,
@@ -267,31 +352,27 @@ const styles = StyleSheet.create({
   rowItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 3,
+    paddingVertical: 7,
     paddingHorizontal: 10,
-    borderWidth: 0.6,
-    borderColor: 'lightgray',
-    borderRadius: 3,
     justifyContent: 'space-between',
     width: '100%',
     marginTop: 7,
-  },
-  rank: {
-    fontSize: 20,
-    width: 30,
-    textAlign: 'center',
+    borderRadius: 7,
+    borderBottomWidth: 0.3,
+    borderBottomColor: 'black',
   },
   profileImage: {
-    width: 36,
-    height: 36,
-    borderRadius: 20,
-    marginHorizontal: 10,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    marginHorizontal: 7,
   },
   currentUserContainer: {
-    position: 'absolute',
-    bottom: 42,
-    left: 0,
-    right: 0,
+    width: '100%',
+    height: 80,
+    backgroundColor: 'orange',
     padding: 10,
+    borderRadius: 7,
+    marginVertical: 5,
   },
 });

@@ -12,6 +12,7 @@ import {
   FlatList,
   Linking,
   ImageBackground,
+  TextInput,
 } from 'react-native';
 import BottomNavigation from '../components/BottomNavigation';
 import {colors} from '../Colors';
@@ -20,6 +21,10 @@ import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
 import {LineChart} from 'react-native-chart-kit';
 import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import Leaderboard from './LeaderBoard';
+import QuizScreen from './QuizScreen';
+import YoutubeIframe from 'react-native-youtube-iframe';
 
 const Home = () => {
   const navigation = useNavigation();
@@ -32,7 +37,51 @@ const Home = () => {
   const [timeLeft, setTimeLeft] = useState({});
   const [tip, setTip] = useState('');
   const [val, setVal] = useState(0);
-  const [show , setShow] = useState(true);
+  const [show, setShow] = useState(true);
+  const [bgImage, setBgImage] = useState(null);
+  const [users, setUsers] = useState(null);
+
+  const [adminUid, setAdminUid] = useState(null);
+  const fetchAdmin = async () => {
+    const docRef = await firestore().collection('Admin').doc('admin');
+    const doc = await docRef.get();
+    const data = doc.data();
+    setAdminUid(data.uid);
+  };
+
+  //fetchAllUsers
+  const fetchAllUsers = async () => {
+    try {
+      const usersRef = firestore().collection('Users');
+      const usersSnapshot = await usersRef.get();
+
+      let usersData = [];
+      usersSnapshot.forEach(userDoc => {
+        usersData.push({
+          id: userDoc.id,
+          ...userDoc.data(),
+        });
+      });
+
+      setUsers(usersData);
+    } catch (error) {
+      console.error('Error fetching users: ', error);
+    }
+  };
+
+  const [id, setId] = useState(null);
+  const [idUpdating, setIdUpdaing] = useState(false);
+  const fetchVideoId = async () => {
+    const docRef = await firestore().collection('Video').doc('video2');
+    const doc = await docRef.get();
+    const data = doc.data();
+    setId(data.id);
+  };
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchVideoId();
+    }, []),
+  );
 
   const fetchUserData = async user => {
     const userSnapShot = await firestore()
@@ -116,25 +165,31 @@ const Home = () => {
       if (doc.exists) {
         const tipData = doc.data();
         setTip(tipData.tip);
+        await AsyncStorage.setItem(
+          'lastFetchedDate',
+          new Date().toDateString(),
+        );
+        await AsyncStorage.setItem('tip', tipData.tip);
       }
     } catch (error) {
       console.error('Error fetching random tip:', error);
     }
   };
 
+  const checkAndFetchTip = async () => {
+    const lastFetchedDate = await AsyncStorage.getItem('lastFetchedDate');
+    const todayDate = new Date().toDateString();
+    if (lastFetchedDate !== todayDate) {
+      fetchRandomTip();
+    } else {
+      const fetchedTip = await AsyncStorage.getItem('tip');
+      console.log(fetchedTip);
+      setTip(fetchedTip);
+    }
+  };
+
   useEffect(() => {
-    fetchRandomTip();
-
-    const checkMidnight = () => {
-      const now = new Date();
-      if (now.getHours() === 0 && now.getMinutes() === 0) {
-        fetchRandomTip();
-      }
-    };
-
-    const intervalId = setInterval(checkMidnight, 60000);
-
-    return () => clearInterval(intervalId);
+    checkAndFetchTip();
   }, []);
 
   const fetchFootprint = async uid => {
@@ -183,6 +238,9 @@ const Home = () => {
       }
       const unsubscribe = auth().onAuthStateChanged(async user => {
         if (user) {
+          await AsyncStorage.setItem('uid', user.uid);
+          fetchAllUsers();
+          fetchAdmin();
           setCurrentUser(user);
           const userDetails = await fetchUserData(user);
           setUserData(userDetails);
@@ -193,6 +251,49 @@ const Home = () => {
       return unsubscribe;
     }, []),
   );
+
+  const images = [
+    'https://www.powermag.com/wp-content/uploads/2015/12/PWR_120115_GM_Fig3.jpg',
+    'https://images.pexels.com/photos/683535/pexels-photo-683535.jpeg?auto=compress&cs=tinysrgb&w=600',
+    'https://images.pexels.com/photos/378279/pexels-photo-378279.jpeg?auto=compress&cs=tinysrgb&w=600',
+    'https://images.pexels.com/photos/2309992/pexels-photo-2309992.jpeg?auto=compress&cs=tinysrgb&w=600',
+    'https://images.pexels.com/photos/117609/pexels-photo-117609.jpeg?auto=compress&cs=tinysrgb&w=600',
+    'https://images.pexels.com/photos/221012/pexels-photo-221012.jpeg?auto=compress&cs=tinysrgb&w=600',
+    'https://images.pexels.com/photos/2566845/pexels-photo-2566845.jpeg?auto=compress&cs=tinysrgb&w=600',
+    'https://images.pexels.com/photos/257775/pexels-photo-257775.jpeg?auto=compress&cs=tinysrgb&w=600',
+    'https://images.pexels.com/photos/1182383/pexels-photo-1182383.jpeg?auto=compress&cs=tinysrgb&w=600',
+    'https://images.pexels.com/photos/2080964/pexels-photo-2080964.jpeg?auto=compress&cs=tinysrgb&w=600',
+  ];
+
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      setCurrentImageIndex(prevIndex => (prevIndex + 1) % images.length);
+    }, 30000);
+
+    return () => clearInterval(intervalId); // Cleanup on unmount
+  }, []);
+
+  const formatDate = isoString => {
+    const date = new Date(isoString);
+    return date.toLocaleString();
+  };
+
+  //update video id
+  const updateVideoId = async () => {
+    try {
+      setIdUpdaing(true);
+      const docRef = firestore().collection('Video').doc('video2');
+      await docRef.update({
+        id: id,
+      });
+    } catch (error) {
+      console.error('Error updating video id: ', error);
+    }
+    setIdUpdaing(false);
+  };
+
   return (
     <View style={styles.container}>
       <StatusBar backgroundColor={'white'} barStyle={'dark-content'} />
@@ -219,12 +320,12 @@ const Home = () => {
               style={{
                 flexDirection: 'column',
                 justifyContent: 'center',
-                width: '75%',
+                width: '76%',
               }}>
               <Text
                 style={{
                   color: 'black',
-                  fontSize: 15,
+                  fontSize: 14,
                   fontFamily: colors.font2,
                   opacity: 0.8,
                 }}>
@@ -233,10 +334,10 @@ const Home = () => {
               <Text
                 style={{
                   color: 'black',
-                  fontSize: 21,
+                  fontSize: 18,
                   width: '100%',
                   fontFamily: colors.font4,
-                  height: 30,
+                  height: 24,
                 }}>
                 {greeting + (' ' + (userData ? userData.username : 'Guest'))}
               </Text>
@@ -245,7 +346,7 @@ const Home = () => {
         </TouchableOpacity>
         <TouchableOpacity
           style={{
-            width: '10%',
+            width: '12%',
             alignItems: 'center',
           }}
           onPress={() =>
@@ -255,7 +356,7 @@ const Home = () => {
         </TouchableOpacity>
         <TouchableOpacity
           style={{
-            width: '10%',
+            width: '12%',
             alignItems: 'center',
           }}>
           <Image
@@ -265,11 +366,16 @@ const Home = () => {
         </TouchableOpacity>
       </View>
       <View style={{width: '100%', height: '86%', alignItems: 'center'}}>
-        <TouchableOpacity>
-          <View style={{width: '100%', height: 150 , overflow : 'hidden' , borderRadius : 10}}>
+        <View
+          style={{
+            width: '100%',
+            height: 150,
+            overflow: 'hidden',
+            borderRadius: 10,
+          }}>
           <ImageBackground
             source={{
-              uri: 'https://www.powermag.com/wp-content/uploads/2015/12/PWR_120115_GM_Fig3.jpg',
+              uri: images[currentImageIndex],
             }}>
             <View
               style={{
@@ -322,49 +428,50 @@ const Home = () => {
             </View>
           </ImageBackground>
         </View>
-        </TouchableOpacity>
-        <ScrollView style={{width: '100%'}}>
-          <View
-            style={{
-              width: '100%',
-              height: 100,
-              backgroundColor: '#228B22',
-              opacity: 0.8,
-              borderRadius: 7,
-              flexDirection: 'row',
-              alignItems: 'center',
-              gap: 10,
-              padding: 15,
-              marginVertical: 10,
-            }}>
-            <Image
-              source={require('../assets/footprint.png')}
-              style={{width: 60, height: 66}}
-            />
+        <ScrollView style={{width: '100%', marginTop: 7}}>
+          {userData && userData.uid !== adminUid && (
             <View
               style={{
-                flexDirection: 'column',
-                alignItems: 'flex-start',
-                width: '75%',
+                width: '100%',
+                height: 100,
+                backgroundColor: '#228B22',
+                opacity: 0.8,
+                borderRadius: 7,
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 10,
+                padding: 15,
+                marginVertical: 7,
               }}>
-              <Text
+              <Image
+                source={require('../assets/footprint.png')}
+                style={{width: 60, height: 66}}
+              />
+              <View
                 style={{
-                  fontSize: 20,
-                  color: 'black',
-                  fontFamily: colors.font2,
+                  flexDirection: 'column',
+                  alignItems: 'flex-start',
+                  width: '75%',
                 }}>
-                Current footprint
-              </Text>
-              <Text
-                style={{
-                  fontSize: 24,
-                  color: 'black',
-                  fontFamily: colors.font3,
-                }}>
-                {val} kg CO2 e
-              </Text>
+                <Text
+                  style={{
+                    fontSize: 20,
+                    color: 'black',
+                    fontFamily: colors.font2,
+                  }}>
+                  Current footprint
+                </Text>
+                <Text
+                  style={{
+                    fontSize: 24,
+                    color: 'black',
+                    fontFamily: colors.font3,
+                  }}>
+                  {val} kg CO2 e
+                </Text>
+              </View>
             </View>
-          </View>
+          )}
           <View
             style={{
               width: '100%',
@@ -405,12 +512,172 @@ const Home = () => {
               </Text>
             </View>
           </View>
+          {userData && userData.uid === adminUid && (
+            <View
+              style={{
+                width: '100%',
+                height: 300,
+                backgroundColor: '#f0f0f0',
+                borderRadius: 12,
+                marginVertical: 10,
+                padding: 10,
+              }}>
+              <Text
+                style={{
+                  fontSize: 18,
+                  marginBottom: 7,
+                  color: 'black',
+                  fontFamily: colors.font3,
+                  textAlign: 'center',
+                }}>
+                {`Total Users ( ${users && users.length} )`}
+              </Text>
+              <ScrollView
+                nestedScrollEnabled
+                style={{width: '100%', height: 280}}>
+                <View>
+                  {users &&
+                    users.length > 0 &&
+                    users.map(item => (
+                      <View
+                        style={{
+                          width: '100%',
+                          height: 78,
+                          backgroundColor: 'white',
+                          borderRadius: 12,
+                          flexDirection: 'row',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          padding: 12,
+                          marginBottom: 7,
+                        }}>
+                        <View
+                          style={{
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            gap: 5,
+                          }}>
+                          <Image
+                            source={{uri: item.profileImg}}
+                            style={{width: 48, height: 48, borderRadius: 24}}
+                          />
+                          <View
+                            style={{
+                              flexDirection: 'column',
+                              alignItems: 'flex-start',
+                              width: '70%',
+                            }}>
+                            <Text
+                              style={{
+                                fontSize: 15,
+                                color: 'black',
+                                fontFamily: colors.font2,
+                                textAlign: 'center',
+                              }}>
+                              {item.username}
+                            </Text>
+                            <Text
+                              style={{
+                                fontSize: 13,
+                                color: 'black',
+                                fontFamily: colors.font4,
+                                textAlign: 'center',
+                              }}>
+                              {item.email}
+                            </Text>
+                            <Text
+                              style={{
+                                fontSize: 12,
+                                color: 'black',
+                                fontFamily: colors.font1,
+                                textAlign: 'center',
+                              }}>
+                              {'Member since : ' + item.member_since}
+                            </Text>
+                          </View>
+                          <TouchableOpacity
+                            style={{width: '10%'}}
+                            onPress={() =>
+                              navigation.navigate('Profile', {uid: item.uid})
+                            }>
+                            <Image
+                              source={require('../assets/external.png')}
+                              style={{width: 25, height: 25}}
+                            />
+                          </TouchableOpacity>
+                        </View>
+                      </View>
+                    ))}
+                </View>
+              </ScrollView>
+            </View>
+          )}
+          <Text
+            style={{
+              fontSize: 16,
+              color: 'black',
+              fontFamily: colors.font2,
+              marginVertical: 5,
+            }}>
+            Eco Chronicles: Today's Topic
+          </Text>
+          {userData && userData.uid === adminUid && (
+            <View
+              style={{
+                width: '100%',
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                marginVertical: 5,
+              }}>
+              <TextInput
+                value={id}
+                style={{
+                  width: '72%',
+                  height: 40,
+                  backgroundColor: '#f0f0f0',
+                  borderRadius: 12,
+                  color: 'black',
+                  fontSize: 16,
+                  fontFamily: colors.font4,
+                  paddingHorizontal: 12,
+                  alignItems: 'center',
+                }}
+                placeholder="Enter video id"
+                placeholderTextColor={'gray'}
+                onChangeText={text => setId(text)}
+              />
+              <TouchableOpacity
+                style={{
+                  width: '27%',
+                  backgroundColor: 'black',
+                  height: 40,
+                  borderRadius: 12,
+                  justifyContent: 'center',
+                  opacity: !idUpdating ? 1.0 : 0.5,
+                }}
+                onPress={!idUpdating && updateVideoId}>
+                <Text
+                  style={{
+                    fontSize: 16,
+                    color: 'white',
+                    textAlign: 'center',
+                    fontFamily: colors.font2,
+                  }}>
+                  Update
+                </Text>
+              </TouchableOpacity>
+            </View>
+          )}
+          <View style={[styles.videoContainer, {marginVertical: 5}]}>
+            {id && <YoutubeIframe height={200} play={false} videoId={id} />}
+          </View>
           <View
             style={{
               width: '100%',
               padding: 10,
               height: 360,
-              marginVertical: 10,
+              marginVertical: 5,
               borderRadius: 10,
               backgroundColor: 'rgba(0,0,0,0.1)',
             }}>
@@ -472,7 +739,7 @@ const Home = () => {
                           fontSize: 10,
                           fontFamily: colors.font1,
                         }}>
-                        {article.publishedAt}
+                        {formatDate(article.publishedAt)}
                       </Text>
                       <Text
                         style={{

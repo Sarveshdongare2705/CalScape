@@ -228,26 +228,6 @@ const Login = () => {
               </Text>
             )}
           </TouchableOpacity>
-          <TouchableOpacity
-            style={[
-              styles.input,
-              {
-                justifyContent: 'center',
-                backgroundColor: colors.bg2,
-                borderColor: colors.bg2,
-                width: '90%',
-                gap: 10,
-              },
-            ]}
-            onPress={handleGoogleSignIn}>
-            <Image
-              source={require('../assets/google.png')}
-              style={styles.img2}
-            />
-            <Text style={{color: 'black', fontSize: 14}}>
-              Continue with Google
-            </Text>
-          </TouchableOpacity>
           <View style={{flexDirection: 'row', gap: 5, alignItems: 'center'}}>
             <Text style={styles.txt}>Don't have an account?</Text>
             <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>

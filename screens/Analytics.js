@@ -34,7 +34,7 @@ const Analytics = () => {
     labels: [],
     datasets: [
       {
-        data: [0, 0, 0, 0, 0, 0 , 0 , 0],
+        data: [0, 0, 0, 0, 0, 0, 0, 0],
       },
     ],
   });
@@ -232,6 +232,47 @@ const Analytics = () => {
       <View style={styles.container}>
         <View
           style={{
+            position: 'absolute',
+            bottom: 60,
+            right: 10,
+            zIndex: 999,
+            width: '50%',
+          }}>
+          <TouchableOpacity
+            style={{
+              width: '100%',
+              height: 40,
+              backgroundColor: '#78C8CC',
+              borderRadius: 7,
+              alignItems: 'center',
+              justifyContent: 'center',
+              opacity: 1,
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              paddingHorizontal: 7,
+            }}
+            onPress={() =>
+              navigcation.navigate('Survey', {
+                uid: currentUser.uid,
+                Route: 'Home',
+              })
+            }>
+            <Image
+              source={require('../assets/survey.png')}
+              style={styles.icon}
+            />
+            <Text
+              style={{
+                color: 'black',
+                fontSize: 18,
+                fontFamily: colors.font2,
+              }}>
+              Take a Survey!
+            </Text>
+          </TouchableOpacity>
+        </View>
+        <View
+          style={{
             flexDirection: 'column',
             alignItems: 'flex-start',
             width: '100%',
@@ -249,76 +290,6 @@ const Analytics = () => {
               width: '100%',
               height: '90%',
             }}>
-            <View
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                width: '100%',
-                marginVertical: 10,
-              }}>
-              <TouchableOpacity
-                style={{
-                  width: '49%',
-                  height: 40,
-                  backgroundColor: colors.bg2,
-                  borderRadius: 7,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  opacity: 1,
-                  flexDirection: 'row',
-                  justifyContent: 'space-between',
-                  paddingHorizontal: 7,
-                }}
-                onPress={() =>
-                  navigcation.navigate('Survey', {
-                    uid: currentUser.uid,
-                    Route: 'Home',
-                  })
-                }>
-                <Image
-                  source={require('../assets/survey.png')}
-                  style={styles.icon}
-                />
-                <Text
-                  style={{
-                    color: 'black',
-                    fontSize: 18,
-                    fontFamily: colors.font2,
-                  }}>
-                  Take a Survey!
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={{
-                  width: '49%',
-                  height: 40,
-                  backgroundColor: colors.bg2,
-                  borderRadius: 7,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  opacity: 1,
-                  flexDirection: 'row',
-                  justifyContent: 'space-between',
-                  paddingHorizontal: 7,
-                }}
-                onPress={() =>
-                  navigcation.navigate('LeaderBoard' , {uid : userData.uid})
-                }>
-                <Image
-                  source={require('../assets/leaderboard.png')}
-                  style={styles.icon}
-                />
-                <Text
-                  style={{
-                    color: 'black',
-                    fontSize: 18,
-                    fontFamily: colors.font2,
-                  }}>
-                  LeaderBoard
-                </Text>
-              </TouchableOpacity>
-            </View>
             <Text
               style={{
                 fontSize: 14,
@@ -364,7 +335,7 @@ const Analytics = () => {
                 fontSize: 14,
                 color: 'black',
                 fontFamily: colors.font4,
-                marginVertical : 7,
+                marginVertical: 7,
               }}>
               Current footprint value distribution
             </Text>

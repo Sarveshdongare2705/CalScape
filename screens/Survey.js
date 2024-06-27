@@ -1580,7 +1580,7 @@ const styles = StyleSheet.create({
   },
   btn: {
     width: '70%',
-    backgroundColor: colors.bg2,
+    backgroundColor: '#78C8CC',
     height: 40,
     borderRadius: 7,
     alignItems: 'center',

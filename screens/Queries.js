@@ -9,6 +9,7 @@ import {
   ScrollView,
   Image,
   ToastAndroid,
+  RefreshControl,
 } from 'react-native';
 import BottomNavigation from '../components/BottomNavigation';
 import {colors} from '../Colors';
@@ -36,12 +37,14 @@ const Queries = () => {
   const [queryModal, showQueryModal] = useState(false);
   const [search, setSearch] = useState('');
   const [searchLoading, setSearchLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   //ask query variables
   const [question, setQuestion] = useState('');
   const [queryImg, setQueryImg] = useState(null);
 
   const fetchQueries = async () => {
+    setLoading(false);
     const queriesSnapshot = await firestore()
       .collection('queries')
       .orderBy('postTime', 'desc')
@@ -55,8 +58,8 @@ const Queries = () => {
           .get();
 
         const user = userDoc.data();
-        queryData.username = user.username;
-        queryData.profileImg = user.profileImg;
+        queryData.username = user && user.username;
+        queryData.profileImg = user && user.profileImg;
 
         const answersSnapshot = await firestore()
           .collection('queries')
@@ -72,8 +75,8 @@ const Queries = () => {
               .doc(answerData.uid)
               .get();
             const user = userDoc.data();
-            answerData.username = user.username ? user.username : null;
-            answerData.profileImg = user.profileImg ? user.profileImg : null;
+            answerData.username = user ? user.username : null;
+            answerData.profileImg = user ? user.profileImg : null;
             return answerData;
           }),
         );
@@ -89,8 +92,10 @@ const Queries = () => {
       }),
     );
     setQueries(queriesData);
+    setLoading(false);
+    setRefreshing(false);
   };
-  useFocusEffect(
+  useEffect(
     React.useCallback(() => {
       setSearch('');
       fetchQueries();
@@ -149,13 +154,12 @@ const Queries = () => {
     }
   };
 
-
-  useEffect(()=>{
-    if(search.trim === ''){
+  useEffect(() => {
+    if (search.trim === '') {
       fetchQueries();
     }
-    handleSearch(search)
-  },[search])
+    handleSearch(search);
+  }, [search]);
 
   const handleSearch = text => {
     setSearchLoading(true);
@@ -171,6 +175,11 @@ const Queries = () => {
     setSearchLoading(false);
   };
 
+  const onRefresh = () => {
+    setRefreshing(true);
+    fetchQueries();
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.section}>
@@ -179,7 +188,7 @@ const Queries = () => {
             placeholder="Search for a query?"
             placeholderTextColor={'gray'}
             style={styles.textInput}
-            onChangeText={text=>setSearch(text)}
+            onChangeText={text => setSearch(text)}
           />
         </View>
         <TouchableOpacity
@@ -288,7 +297,7 @@ const Queries = () => {
                 marginTop: 10,
                 opacity: uploading ? 0.4 : 1,
               }}>
-              <ScrollView style={{width: '100%', height: '100%'}}>
+              <ScrollView style={{width: '100%', height: '100%', marginTop: 7}}>
                 {queryImg && (
                   <View
                     style={{
@@ -337,17 +346,37 @@ const Queries = () => {
           </View>
         )}
         {searchLoading ? (
-          <ActivityIndicator size={17} color='black' style={{position : 'absolute' , top : 5 , left : 5}} />
+          <ActivityIndicator
+            size={16}
+            color={'black'}
+            style={{position: 'absolute', top: 5, left: 5}}
+          />
         ) : (
-          <ScrollView style={{width: '100%', height: '100%', marginTop: 7}}>
-            {queries.map((query, index) => (
-              <Query
-                query={query}
-                index={index}
-                userData={userData}
-                fetchQueries={fetchQueries}
+          <ScrollView
+            style={{width: '100%', height: '100%', marginTop: 7}}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={onRefresh}
+                colors={[colors.p, colors.s]}
               />
-            ))}
+            }>
+            {loading ? (
+              <ActivityIndicator
+                color={'black'}
+                size={18}
+                style={{position: 'absolute', top: 3, left: 3}}
+              />
+            ) : (
+              queries.map((query, index) => (
+                <Query
+                  query={query}
+                  index={index}
+                  userData={userData}
+                  fetchQueries={fetchQueries}
+                />
+              ))
+            )}
             <View style={{height: 100}}></View>
           </ScrollView>
         )}
