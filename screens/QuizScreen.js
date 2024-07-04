@@ -4,6 +4,7 @@ import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth'; // Import Firebase Auth
 import {colors} from '../Colors';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
+import {ActivityIndicator} from 'react-native-paper';
 
 const QuizScreen = ({userData}) => {
   const navigation = useNavigation();
@@ -15,6 +16,7 @@ const QuizScreen = ({userData}) => {
   const [allScores, setAllScores] = useState([]); // State variable for all user scores
   const [submitted, setSubmitted] = useState(false);
   const [noQuiz, setNoQuiz] = useState(false);
+  const [quizLoading, setQuizLoading] = useState(false);
 
   const [adminUid, setAdminUid] = useState(null);
   const fetchAdmin = async () => {
@@ -34,6 +36,7 @@ const QuizScreen = ({userData}) => {
     useCallback(() => {
       const fetchQuiz = async () => {
         try {
+          setQuizLoading(true);
           const userId = auth().currentUser.uid;
           const today = new Date();
           const day = String(today.getDate()).padStart(2, '0');
@@ -107,6 +110,7 @@ const QuizScreen = ({userData}) => {
         } catch (error) {
           console.error('Error fetching quiz:', error);
         }
+        setQuizLoading(false);
       };
 
       fetchQuiz();
@@ -202,47 +206,6 @@ const QuizScreen = ({userData}) => {
     }
   };
 
-  if (!quiz) {
-    return (
-      <View>
-        <Text
-          style={{
-            fontSize: 20,
-            marginBottom: 20,
-            color: 'black',
-            fontFamily: colors.font2,
-            backgroundColor: 'lightgray',
-            padding: 15,
-            borderRadius: 12,
-          }}>
-          No quiz for today
-        </Text>
-        {userData && userData.uid === adminUid && (
-          <TouchableOpacity
-            style={{
-              width: '100%',
-              height: 36,
-              borderRadius: 15,
-              backgroundColor: 'black',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-            onPress={() => navigation.navigate('NewQuiz' , {userData : userData})}>
-            <Text
-              style={{
-                color: 'white',
-                fontSize: 16,
-                fontFamily: colors.font2,
-                textAlign: 'center',
-              }}>
-              Add a Quiz
-            </Text>
-          </TouchableOpacity>
-        )}
-      </View>
-    );
-  }
-
   const createOption = (option, optionIndex, questionIndex, question) => {
     return (
       <TouchableOpacity
@@ -272,208 +235,255 @@ const QuizScreen = ({userData}) => {
     );
   };
 
-  return (
-    <View
-      style={{
-        flex: 1,
-        justifyContent: 'center',
-        backgroundColor: 'lightgray',
-        padding: 15,
-        borderRadius: 12,
-      }}>
-      {score !== null && (
-        <View style={{alignItems: 'center', marginBottom: 20}}>
+  if (quizLoading) {
+    return <ActivityIndicator size={25} color="black" />;
+  } else {
+    if (!quiz) {
+      return (
+        <View>
           <Text
             style={{
-              fontSize: 24,
-              color: 'black',
-              fontFamily: colors.font3,
-              textAlign: 'center',
-            }}>
-            Your Score: {score}/
-            {quiz.quizQuestions && quiz.quizQuestions.length}
-          </Text>
-          <Text
-            style={{
-              fontSize: 16,
+              fontSize: 20,
+              marginBottom: 20,
               color: 'black',
               fontFamily: colors.font2,
-              textAlign: 'center',
+              backgroundColor: 'lightgray',
+              padding: 15,
+              borderRadius: 12,
             }}>
-            Submitted At: {submissionTime && submissionTime.toLocaleString()}
+            No quiz for today
           </Text>
+          {userData && userData.uid === adminUid && (
+            <TouchableOpacity
+              style={{
+                width: '100%',
+                height: 36,
+                borderRadius: 15,
+                backgroundColor: 'black',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+              onPress={() =>
+                navigation.navigate('NewQuiz', {userData: userData})
+              }>
+              <Text
+                style={{
+                  color: 'white',
+                  fontSize: 16,
+                  fontFamily: colors.font2,
+                  textAlign: 'center',
+                }}>
+                Add a Quiz
+              </Text>
+            </TouchableOpacity>
+          )}
         </View>
-      )}
-      <Text
-        style={{
-          fontSize: 18,
-          marginBottom: 20,
-          color: 'black',
-          fontFamily: colors.font2,
-        }}>
-        {quiz.quizTitle}
-      </Text>
-      {quiz.quizQuestions &&
-        quiz.quizQuestions.map((question, questionIndex) => (
-          <View key={questionIndex} style={{marginBottom: 20}}>
-            <Text
-              style={{
-                fontSize: 16,
-                marginBottom: 10,
-                color: 'black',
-                fontFamily: colors.font2,
-              }}>
-              {question.questionText}
-            </Text>
-            {question.options.map((option, optionIndex) =>
-              createOption(option, optionIndex, questionIndex, question),
-            )}
-          </View>
-        ))}
-      {!submitted &&
-        (!userAnswers.includes(-1) ? (
-          <TouchableOpacity
-            style={{
-              width: '100%',
-              height: 36,
-              borderRadius: 15,
-              backgroundColor: 'black',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-            onPress={handleAnswerSubmit}>
-            <Text
-              style={{
-                color: 'white',
-                fontSize: 16,
-                fontFamily: colors.font2,
-                textAlign: 'center',
-              }}>
-              Submit
-            </Text>
-          </TouchableOpacity>
-        ) : (
-          <TouchableOpacity
-            style={{
-              width: '100%',
-              height: 36,
-              borderRadius: 15,
-              backgroundColor: 'black',
-              alignItems: 'center',
-              justifyContent: 'center',
-              opacity: 0.7,
-            }}>
-            <Text
-              style={{
-                color: 'white',
-                fontSize: 16,
-                fontFamily: colors.font2,
-                textAlign: 'center',
-              }}>
-              Submit
-            </Text>
-          </TouchableOpacity>
-        ))}
-
-      {/* Display all user scores */}
-      {allScores.length > 0 ? (
-        <View style={{marginTop: 20}}>
+      );
+    } else {
+      return (
+        <View
+          style={{
+            flex: 1,
+            justifyContent: 'center',
+            backgroundColor: 'lightgray',
+            padding: 15,
+            borderRadius: 12,
+          }}>
+          {score !== null && (
+            <View style={{alignItems: 'center', marginBottom: 20}}>
+              <Text
+                style={{
+                  fontSize: 24,
+                  color: 'black',
+                  fontFamily: colors.font3,
+                  textAlign: 'center',
+                }}>
+                Your Score: {score}/{quiz.quizQuestions && quiz.quizQuestions.length}
+              </Text>
+              <Text
+                style={{
+                  fontSize: 16,
+                  color: 'black',
+                  fontFamily: colors.font2,
+                  textAlign: 'center',
+                }}>
+                Submitted At:{' '}
+                {submissionTime && submissionTime.toLocaleString()}
+              </Text>
+            </View>
+          )}
           <Text
             style={{
-              fontSize: 20,
-              marginBottom: 12,
+              fontSize: 18,
+              marginBottom: 20,
               color: 'black',
-              fontFamily: colors.font3,
-              textAlign: 'center',
+              fontFamily: colors.font2,
             }}>
-            {`All Scores ( ${allScores.length} )`}
+            {quiz.quizTitle}
           </Text>
-          {allScores.length > 0 &&
-            allScores.map(item => (
-              <View
-                style={{
-                  width: '100%',
-                  height: 66,
-                  backgroundColor: 'white',
-                  borderRadius: 12,
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  padding: 12,
-                  marginBottom: 7,
-                }}>
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    gap: 5,
-                  }}>
-                  <Image
-                    source={{uri: item.profileImg}}
-                    style={{width: 42, height: 42, borderRadius: 21}}
-                  />
-                  <View
-                    style={{
-                      flexDirection: 'column',
-                      alignItems: 'flex-start',
-                      width: '64%',
-                      height: 40,
-                    }}>
-                    <Text
-                      style={{
-                        fontSize: 17,
-                        color: 'black',
-                        fontFamily: colors.font2,
-                        textAlign: 'center',
-                        height: 25,
-                      }}>
-                      {item.username}
-                    </Text>
-                    <Text
-                      style={{
-                        fontSize: 14,
-                        marginBottom: 10,
-                        color: 'black',
-                        fontFamily: colors.font4,
-                        textAlign: 'center',
-                        height: 15,
-                      }}>
-                      Submitted At :{' '}
-                      {item.submissionTime.toDate().toLocaleTimeString()}
-                    </Text>
-                  </View>
-                </View>
+          {quiz.quizQuestions &&
+            quiz.quizQuestions.map((question, questionIndex) => (
+              <View key={questionIndex} style={{marginBottom: 20}}>
                 <Text
                   style={{
-                    fontSize: 18,
+                    fontSize: 16,
+                    marginBottom: 10,
                     color: 'black',
-                    fontFamily: colors.font3,
-                    textAlign: 'center',
-                    width: '22%',
+                    fontFamily: colors.font2,
                   }}>
-                  {item.score +
-                    ' / ' +
-                    (quiz.quizQuestions && quiz.quizQuestions.length)}
+                  {question.questionText}
                 </Text>
+                {question.options.map((option, optionIndex) =>
+                  createOption(option, optionIndex, questionIndex, question),
+                )}
               </View>
             ))}
+          {!submitted &&
+            (!userAnswers.includes(-1) ? (
+              <TouchableOpacity
+                style={{
+                  width: '100%',
+                  height: 36,
+                  borderRadius: 15,
+                  backgroundColor: 'black',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+                onPress={handleAnswerSubmit}>
+                <Text
+                  style={{
+                    color: 'white',
+                    fontSize: 16,
+                    fontFamily: colors.font2,
+                    textAlign: 'center',
+                  }}>
+                  Submit
+                </Text>
+              </TouchableOpacity>
+            ) : (
+              <TouchableOpacity
+                style={{
+                  width: '100%',
+                  height: 36,
+                  borderRadius: 15,
+                  backgroundColor: 'black',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  opacity: 0.7,
+                }}>
+                <Text
+                  style={{
+                    color: 'white',
+                    fontSize: 16,
+                    fontFamily: colors.font2,
+                    textAlign: 'center',
+                  }}>
+                  Submit
+                </Text>
+              </TouchableOpacity>
+            ))}
+
+          {/* Display all user scores */}
+          {allScores.length > 0 ? (
+            <View style={{marginTop: 20}}>
+              <Text
+                style={{
+                  fontSize: 20,
+                  marginBottom: 12,
+                  color: 'black',
+                  fontFamily: colors.font3,
+                  textAlign: 'center',
+                }}>
+                {`All Scores ( ${allScores.length} )`}
+              </Text>
+              {allScores.length > 0 &&
+                allScores.map(item => (
+                  <View
+                    style={{
+                      width: '100%',
+                      height: 66,
+                      backgroundColor: 'white',
+                      borderRadius: 12,
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      padding: 12,
+                      marginBottom: 7,
+                    }}>
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        gap: 5,
+                      }}>
+                      <Image
+                        source={{uri: item.profileImg}}
+                        style={{width: 42, height: 42, borderRadius: 21}}
+                      />
+                      <View
+                        style={{
+                          flexDirection: 'column',
+                          alignItems: 'flex-start',
+                          width: '64%',
+                          height: 40,
+                        }}>
+                        <Text
+                          style={{
+                            fontSize: 17,
+                            color: 'black',
+                            fontFamily: colors.font2,
+                            textAlign: 'center',
+                            height: 25,
+                          }}>
+                          {item.username}
+                        </Text>
+                        <Text
+                          style={{
+                            fontSize: 14,
+                            marginBottom: 10,
+                            color: 'black',
+                            fontFamily: colors.font4,
+                            textAlign: 'center',
+                            height: 15,
+                          }}>
+                          Submitted At :{' '}
+                          {item.submissionTime.toDate().toLocaleTimeString()}
+                        </Text>
+                      </View>
+                    </View>
+                    <Text
+                      style={{
+                        fontSize: 18,
+                        color: 'black',
+                        fontFamily: colors.font3,
+                        textAlign: 'center',
+                        width: '22%',
+                      }}>
+                      {item.score +
+                        ' / ' +
+                        (quiz.quizQuestions && quiz.quizQuestions.length)}
+                    </Text>
+                  </View>
+                ))}
+            </View>
+          ) : (
+            <View style={{marginTop: 20}}>
+              <Text
+                style={{
+                  fontSize: 20,
+                  marginBottom: 12,
+                  color: 'black',
+                  fontFamily: colors.font3,
+                  textAlign: 'center',
+                }}>
+                {`No respones till now`}
+              </Text>
+            </View>
+          )}
         </View>
-      ) : (
-        <View style={{marginTop: 20}}>
-          <Text
-            style={{
-              fontSize: 20,
-              marginBottom: 12,
-              color: 'black',
-              fontFamily: colors.font3,
-              textAlign: 'center',
-            }}>
-            {`No respones till now`}
-          </Text>
-        </View>
-      )}
-    </View>
-  );
+      );
+    }
+  }
 };
 
 export default QuizScreen;

@@ -1512,7 +1512,7 @@ const Survey = () => {
             </TouchableOpacity>
           )}
         </View>
-        <View style={{position: 'absolute', bottom: 0, left: 0, right: 0}}>
+        <View style={{position: 'absolute', bottom: 0, left: 5, right: 5}}>
           <BottomNavigation />
         </View>
       </View>

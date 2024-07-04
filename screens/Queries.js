@@ -381,9 +381,9 @@ const Queries = () => {
           </ScrollView>
         )}
       </View>
-      <View style={styles.bottomNavigation}>
-        <BottomNavigation />
-      </View>
+      <View style={{position: 'absolute', bottom: 0, left: 0, right: 0}}>
+          <BottomNavigation />
+        </View>
     </View>
   );
 };

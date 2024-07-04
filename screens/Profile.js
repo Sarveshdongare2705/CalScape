@@ -708,8 +708,8 @@ const Profile = () => {
         </ScrollView>
       )}
       <View style={{position: 'absolute', bottom: 0, left: 0, right: 0}}>
-        <BottomNavigation />
-      </View>
+          <BottomNavigation />
+        </View>
     </View>
   );
 };

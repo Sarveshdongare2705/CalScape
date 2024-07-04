@@ -475,7 +475,7 @@ const Home = () => {
           <View
             style={{
               width: '100%',
-              height: 140,
+              minHeight: 140,
               backgroundColor: 'orange',
               opacity: 0.8,
               borderRadius: 10,
@@ -759,8 +759,8 @@ const Home = () => {
         </ScrollView>
       </View>
       <View style={{position: 'absolute', bottom: 0, left: 0, right: 0}}>
-        <BottomNavigation />
-      </View>
+          <BottomNavigation />
+        </View>
     </View>
   );
 };

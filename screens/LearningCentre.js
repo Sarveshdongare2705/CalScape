@@ -11,21 +11,32 @@ import {
 } from 'react-native';
 import YoutubeIframe from 'react-native-youtube-iframe';
 import BottomNavigation from '../components/BottomNavigation';
-import {useFocusEffect, useNavigation, useRoute} from '@react-navigation/native';
+import {
+  useFocusEffect,
+  useNavigation,
+  useRoute,
+} from '@react-navigation/native';
 import {colors} from '../Colors';
 import QuizScreen from './QuizScreen';
 import firestore from '@react-native-firebase/firestore';
+import Courses from './Courses';
 
 const LearningCentre = () => {
   const route = useRoute();
-  const { userData } = route.params;
+  const {userData} = route.params;
   const navigation = useNavigation();
   const [id, setId] = useState(null);
   const [chapters, setChapters] = useState(null);
+  const [showModules, setShowModules] = useState(true);
+  const [showCourses, setShowCourses] = useState(false);
+  const [showQuiz, setShowQuiz] = useState(false);
+  const [quizLoading, setQuizLoading] = useState(false);
   //fetchAllChapters
   const fetchAllChapters = async () => {
     try {
-      const chaptersRef = firestore().collection('Modules').orderBy('id' , 'asc');
+      const chaptersRef = firestore()
+        .collection('Modules')
+        .orderBy('id', 'asc');
       const chaptersSnapshot = await chaptersRef.get();
 
       let chaptersData = [];
@@ -54,8 +65,6 @@ const LearningCentre = () => {
           alignItems: 'center',
           gap: 7,
           marginBottom: 12,
-          borderBottomWidth: 0.4,
-          borderBottomColor: 'black',
           paddingBottom: 7,
           height: 34,
         }}>
@@ -67,9 +76,86 @@ const LearningCentre = () => {
         </TouchableOpacity>
         <Text style={styles.title}>Learning Centre</Text>
       </View>
+      <View
+        style={{
+          width: '100%',
+          flexDirection: 'row',
+          alignItems: 'center',
+          backgroundColor: 'white',
+          justifyContent: 'space-between',
+          marginBottom: 12,
+        }}>
+        <TouchableOpacity
+          style={{
+            width: '33%',
+            borderBottomWidth: 2,
+            borderBottomColor: showModules ? colors.p : 'lightgray',
+            paddingBottom: 7,
+          }}
+          onPress={() => {
+            setShowModules(true);
+            setShowCourses(false);
+            setShowQuiz(false);
+          }}>
+          <Text
+            style={{
+              fontSize: 16,
+              fontFamily: colors.font2,
+              textAlign: 'center',
+              color: showModules ? colors.p : 'black',
+            }}>
+            Modules
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={{
+            width: '33%',
+            borderBottomWidth: 2,
+            borderBottomColor: showCourses ? colors.p : 'lightgray',
+            paddingBottom: 7,
+          }}
+          onPress={() => {
+            setShowModules(false);
+            setShowCourses(true);
+            setShowQuiz(false);
+          }}>
+          <Text
+            style={{
+              fontSize: 16,
+              fontFamily: colors.font2,
+              textAlign: 'center',
+              color: showCourses ? colors.p : 'black',
+            }}>
+            Courses
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={{
+            width: '33%',
+            borderBottomWidth: 2,
+            borderBottomColor: showQuiz ? colors.p : 'lightgray',
+            paddingBottom: 7,
+          }}
+          onPress={() => {
+            setShowModules(false);
+            setShowCourses(false);
+            setShowQuiz(true);
+          }}>
+          <Text
+            style={{
+              fontSize: 16,
+              fontFamily: colors.font2,
+              textAlign: 'center',
+              color: showQuiz ? colors.p : 'black',
+            }}>
+            Today's Quiz
+          </Text>
+        </TouchableOpacity>
+      </View>
       <ScrollView style={{width: '100%'}}>
-        <Text style={[styles.title, {marginBottom : 7}]}>Modules</Text>
-        {chapters &&
+        {showModules && !showCourses && 
+          !showQuiz &&
+          chapters &&
           chapters.map((module, index) => (
             <TouchableOpacity
               key={index}
@@ -88,25 +174,21 @@ const LearningCentre = () => {
                   modules: chapters,
                 })
               }
-              style={{marginTop: 10, borderRadius: 12, overflow: 'hidden'}}>
+              style={{borderRadius: 12, overflow: 'hidden', marginBottom: 10}}>
               <ImageBackground
                 source={{uri: module.img1}}
-                style={{width: '100%', height: 100, objectFit: 'contain'}}>
+                style={{width: '100%', height: 120, objectFit: 'contain'}}>
                 <Text style={styles.heading}>{module.title}</Text>
-                <Image
-                  style={styles.icon}
-                  source={require('../assets/next.png')}
-                />
               </ImageBackground>
             </TouchableOpacity>
           ))}
-        <Text style={[styles.title, {marginVertical: 7}]}>Today's Quiz</Text>
-        <QuizScreen userData={userData} />
+        {!showModules && showCourses && !showQuiz && <Courses userData={userData} />}
+        {!showModules && !showCourses && showQuiz && <QuizScreen userData={userData} />}
         <View style={{height: 200}}></View>
       </ScrollView>
       <View style={{position: 'absolute', bottom: 0, left: 0, right: 0}}>
-        <BottomNavigation />
-      </View>
+          <BottomNavigation />
+        </View>
     </View>
   );
 };

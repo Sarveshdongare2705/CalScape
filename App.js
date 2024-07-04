@@ -19,7 +19,6 @@ import ExtraActivities from './screens/ExtraActivities';
 import Travel from './screens/Travel';
 import Electricity from './screens/Electricity';
 import Energy from './screens/Energy';
-import Community from './screens/Community';
 import Queries from './screens/Queries';
 import ImageView from './screens/Image';
 import Analytics from './screens/Analytics';
@@ -27,6 +26,8 @@ import LeaderBoard from './screens/LeaderBoard';
 import LearningCentre from './screens/LearningCentre';
 import Module from './screens/Module';
 import NewQuiz from './screens/NewQuiz';
+import BottomNavigation from './components/BottomNavigation';
+import Suggestions from './screens/Suggestions';
 
 const Stack = createNativeStackNavigator();
 const App = () => {
@@ -64,7 +65,6 @@ const App = () => {
         <Stack.Screen name="Analytics" component={Analytics} />
         <Stack.Screen name="Questionnaire" component={Questionnaire} />
         <Stack.Screen name="Profile" component={Profile} />
-        <Stack.Screen name="Community" component={Community} />
         <Stack.Screen name="Survey" component={Survey} />
         <Stack.Screen name="Recycle" component={Recycle} />
         <Stack.Screen name="Clothes" component={Clothes} />
@@ -79,6 +79,7 @@ const App = () => {
         <Stack.Screen name="LearningCentre" component={LearningCentre} />
         <Stack.Screen name="Module" component={Module} />
         <Stack.Screen name="NewQuiz" component={NewQuiz} />
+        <Stack.Screen name="Suggestions" component={Suggestions} />
       </Stack.Navigator>
     </NavigationContainer>
   );

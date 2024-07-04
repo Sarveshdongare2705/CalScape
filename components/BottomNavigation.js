@@ -49,15 +49,57 @@ const BottomNavigation = () => {
     }, []),
   );
 
-  return (
-    <View style={styles.container}>
-      <TouchableOpacity
-        style={[styles.button, {marginRight: -5}]}
-        onPress={() => navigation.navigate('Home')}>
-        <Image source={require('../assets/home.png')} style={styles.img} />
-        <Text style={styles.txt}>Home</Text>
-      </TouchableOpacity>
-      {userData && userData.uid !== adminUid && (
+  if (userData && userData.uid === adminUid) {
+    return (
+      <View style={styles.container}>
+        <TouchableOpacity
+          style={[styles.button, {marginRight: -5}]}
+          onPress={() => navigation.navigate('Home')}>
+          <Image source={require('../assets/home.png')} style={styles.img} />
+          <Text style={styles.txt}>Home</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.button]}
+          onPress={() =>
+            navigation.navigate('Suggestions', {userData: userData})
+          }>
+          <Image
+            source={require('../assets/suggestions.png')}
+            style={styles.img}
+          />
+          <Text style={styles.txt}>Suggestions</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.button]}
+          onPress={() =>
+            navigation.navigate('Queries', {
+              currentUser: currentUser,
+              userData: userData,
+            })
+          }>
+          <Image source={require('../assets/query.png')} style={styles.img} />
+          <Text style={styles.txt}>Queries</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.button]}
+          onPress={() =>
+            navigation.navigate('LearningCentre', {userData: userData})
+          }>
+          <Image source={require('../assets/learn.png')} style={styles.img} />
+          <Text style={styles.txt}>Learn</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  } else {
+    return (
+      <View style={styles.container}>
+        <TouchableOpacity
+          style={[styles.button, {marginRight: -5}]}
+          onPress={() => navigation.navigate('Home')}>
+          <Image source={require('../assets/home.png')} style={styles.img} />
+          <Text style={styles.txt}>Home</Text>
+        </TouchableOpacity>
         <TouchableOpacity
           style={[styles.button]}
           onPress={() => navigation.navigate('Analytics', {uid: userData.uid})}>
@@ -67,37 +109,40 @@ const BottomNavigation = () => {
           />
           <Text style={styles.txt}>Analytics</Text>
         </TouchableOpacity>
-      )}
-      {userData && userData.uid !== adminUid && (
-        <TouchableOpacity style={[styles.button]}>
+        <TouchableOpacity
+          style={[styles.button]}
+          onPress={() =>
+            navigation.navigate('Suggestions', {userData: userData})
+          }>
           <Image
             source={require('../assets/suggestions.png')}
             style={styles.img}
           />
           <Text style={styles.txt}>Suggestions</Text>
         </TouchableOpacity>
-      )}
-      <TouchableOpacity
-        style={[styles.button]}
-        onPress={() =>
-          navigation.navigate('Queries', {
-            currentUser: currentUser,
-            userData: userData,
-          })
-        }>
-        <Image source={require('../assets/query.png')} style={styles.img} />
-        <Text style={styles.txt}>Queries</Text>
-      </TouchableOpacity>
-      <TouchableOpacity
-        style={[styles.button]}
-        onPress={() =>
-          navigation.navigate('LearningCentre', {userData: userData})
-        }>
-        <Image source={require('../assets/learn.png')} style={styles.img} />
-        <Text style={styles.txt}>Learn</Text>
-      </TouchableOpacity>
-    </View>
-  );
+
+        <TouchableOpacity
+          style={[styles.button]}
+          onPress={() =>
+            navigation.navigate('Queries', {
+              currentUser: currentUser,
+              userData: userData,
+            })
+          }>
+          <Image source={require('../assets/query.png')} style={styles.img} />
+          <Text style={styles.txt}>Queries</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.button]}
+          onPress={() =>
+            navigation.navigate('LearningCentre', {userData: userData})
+          }>
+          <Image source={require('../assets/learn.png')} style={styles.img} />
+          <Text style={styles.txt}>Learn</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
 };
 
 export default BottomNavigation;
@@ -112,6 +157,8 @@ const styles = StyleSheet.create({
     width: '100%',
     alignItems: 'center',
     borderRadius: 3,
+    borderTopLeftRadius: 12,
+    borderTopRightRadius: 12,
   },
   button: {
     flex: 1,
@@ -128,7 +175,7 @@ const styles = StyleSheet.create({
   },
   img: {
     width: '100%',
-    height: 25,
+    height: 24,
     objectFit: 'contain',
   },
 });

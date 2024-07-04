@@ -11,10 +11,11 @@ import {
   Dimensions,
   FlatList,
   Linking,
+  TextInput,
 } from 'react-native';
 import BottomNavigation from '../components/BottomNavigation';
 import {colors} from '../Colors';
-import {useFocusEffect, useNavigation} from '@react-navigation/native';
+import {useFocusEffect, useNavigation, useRoute} from '@react-navigation/native';
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
 import {LineChart, BarChart} from 'react-native-chart-kit';
@@ -23,13 +24,17 @@ import {ActivityIndicator} from 'react-native-paper';
 import Leaderboard from './LeaderBoard';
 
 const Analytics = () => {
-  const navigcation = useNavigation();
+  const navigation = useNavigation();
+  const route = useRoute();
+  const {userId} = route.params;
   const [currentUser, setCurrentUser] = useState(null);
   const [userData, setUserData] = useState(null);
   const [val, setVal] = useState(0);
   const [footprintData, setFootprintData] = useState(null);
   const [others, setOthers] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [month, setMonth] = useState('');
+  const [year, setYear] = useState('');
   const [lineChartData, setLineChartData] = useState({
     labels: [],
     datasets: [
@@ -38,6 +43,9 @@ const Analytics = () => {
       },
     ],
   });
+  const [barData, setBarData] = useState(null);
+  const [showMenu, setShowMenu] = useState(false);
+
   const monthName = [
     'Jan',
     'Feb',
@@ -66,7 +74,6 @@ const Analytics = () => {
     return null;
   };
 
-  //footprint
   const fetchFootprint = async uid => {
     const currentTime = new Date();
     const timestamp = {
@@ -103,7 +110,6 @@ const Analytics = () => {
     }
   };
 
-  //line data
   const fetchFootprintLineChart = async uid => {
     const currentTime = new Date();
     const currentMonth = currentTime.getMonth() + 1;
@@ -165,14 +171,80 @@ const Analytics = () => {
     });
   };
 
+  const [barChartFootrpint, setBarChartFootprint] = useState(0);
+
+  const fetchBarChartData = async (uid, month, year) => {
+    setBarChartFootprint(0);
+    setLoading(false);
+    const docId = `${month}-${year}`;
+    const footprintRef = firestore()
+      .collection('Users')
+      .doc(uid)
+      .collection('Footprint')
+      .doc(docId);
+
+    const doc = await footprintRef.get();
+    if (doc.exists) {
+      const data = doc.data();
+      const total =
+        (data.basicDetails ? data.basicDetails : 0) +
+        (data.recycleDetails ? data.recycleDetails : 0) +
+        (data.travelDetails ? data.travelDetails : 0) +
+        (data.electricityDetails
+          ? data.electricityDetails
+          : 0) +
+        (data.energyDetails ? data.energyDetails : 0) +
+        (data.foodDetails ? data.foodDetails : 0) +
+        (data.clothingDetails ? data.clothingDetails : 0) +
+        (data.extraDetails ? data.extraDetails : 0);
+      
+        setBarChartFootprint(total.toFixed(2));
+      const barData = {
+        labels: [
+          'Travel',
+          'Electricity',
+          'Energy',
+          'Food',
+          'Clothes',
+          'Others',
+        ],
+        datasets: [
+          {
+            data: [
+              data.travelDetails ? data.travelDetails : 0,
+              data.electricityDetails ? data.electricityDetails : 0,
+              data.energyDetails ? data.energyDetails : 0,
+              data.foodDetails ? data.foodDetails : 0,
+              data.clothingDetails ? data.clothingDetails : 0,
+              (data.basicDetails ? data.basicDetails : 0) +
+                (data.recycleDetails ? data.recycleDetails : 0) +
+                (data.extraDetails ? data.extraDetails : 0),
+            ],
+          },
+        ],
+      };
+      setBarData(barData);
+    } else {
+      setBarData(null);
+    }
+    setLoading(false);
+  };
+
   useFocusEffect(
     useCallback(() => {
       const unsubscribe = auth().onAuthStateChanged(async user => {
         if (user) {
+          setLoading(true);
           setCurrentUser(user);
           const userDetails = await fetchUserData(user);
           setUserData(userDetails);
           fetchFootprint(userDetails.uid);
+          const currentTime = new Date();
+          const currentMonth = currentTime.getMonth();
+          const currentYear = currentTime.getFullYear();
+          setMonth(monthName[currentMonth]);
+          setYear(currentYear.toString());
+          fetchBarChartData(user.uid , currentMonth + 1, currentYear);
           fetchFootprintLineChart(userDetails.uid);
         }
       });
@@ -180,30 +252,19 @@ const Analytics = () => {
     }, []),
   );
 
-  const barData = {
-    labels: ['Travel', 'Electricity', 'Energy', 'Food', 'Clothes', 'Others'],
-    datasets: [
-      {
-        data: [
-          footprintData && footprintData.travelDetails
-            ? footprintData.travelDetails
-            : 0,
-          footprintData && footprintData.electricityDetails
-            ? footprintData.electricityDetails
-            : 0,
-          footprintData && footprintData.energyDetails
-            ? footprintData.energyDetails
-            : 0,
-          footprintData && footprintData.foodDetails
-            ? footprintData.foodDetails
-            : 0,
-          footprintData && footprintData.clothingDetails
-            ? footprintData.clothingDetails
-            : 0,
-          others,
-        ],
-      },
-    ],
+  const handleMonthChange = month => {
+    setMonth(month);
+    setShowMenu(false);
+    if (month && year) {
+      fetchBarChartData(currentUser.uid, monthName.indexOf(month) + 1, year);
+    }
+  };
+
+  const handleYearChange = year => {
+    setYear(year);
+    if (month && year) {
+      fetchBarChartData(currentUser.uid, monthName.indexOf(month) + 1, year);
+    }
   };
 
   if (loading) {
@@ -252,7 +313,7 @@ const Analytics = () => {
               paddingHorizontal: 7,
             }}
             onPress={() =>
-              navigcation.navigate('Survey', {
+              navigation.navigate('Survey', {
                 uid: currentUser.uid,
                 Route: 'Home',
               })
@@ -301,23 +362,22 @@ const Analytics = () => {
             <LineChart
               data={lineChartData}
               width={Dimensions.get('window').width - 24}
-              height={180}
+              height={190}
               yAxisSuffix=""
               yAxisInterval={1}
               chartConfig={{
-                backgroundColor: '#e26a00',
-                backgroundGradientFrom: '#fb8c00',
-                backgroundGradientTo: '#ffa726',
-                decimalPlaces: 1,
-                color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-                labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+                backgroundGradientFrom: '#f0f0f0',
+                backgroundGradientTo: '#f0f0f0',
+                decimalPlaces: 0,
+                color: (opacity = 1) => `rgba(190, 190, 190, ${opacity})`,
+                labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
                 style: {
                   borderRadius: 16,
                 },
                 propsForDots: {
                   r: '6',
-                  strokeWidth: '2',
-                  stroke: colors.p,
+                  strokeWidth: '0.5',
+                  stroke: 'black',
                 },
                 propsForLabels: {
                   fontFamily: colors.font2,
@@ -337,44 +397,186 @@ const Analytics = () => {
                 fontFamily: colors.font4,
                 marginVertical: 7,
               }}>
-              Current footprint value distribution
+              Footprint value distribution
             </Text>
-            <BarChart
-              data={barData}
-              width={Dimensions.get('window').width - 24}
-              height={420}
-              yAxisLabel=""
-              chartConfig={{
-                backgroundColor: '#e26a00',
-                backgroundGradientFrom: colors.p,
-                backgroundGradientTo: colors.p,
-                decimalPlaces: 1,
-                color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-                labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-                style: {
-                  borderRadius: 16,
-                },
-                propsForLabels: {
-                  fontFamily: colors.font2,
-                },
-              }}
-              verticalLabelRotation={90}
+            <View
               style={{
+                width: '100%',
+                height: 38,
+                flexDirection: 'row',
+                alignItems: 'center',
+                marginBottom: 7,
+                justifyContent: 'space-between',
+              }}>
+              <TouchableOpacity
+                style={{width: '65%', alignItems: 'center'}}
+                onPress={() => {
+                  setShowMenu(!showMenu);
+                }}>
+                <TextInput
+                  style={{
+                    width: '100%',
+                    height: 36,
+                    backgroundColor: '#f0f0f0',
+                    color: 'black',
+                    paddingHorizontal: 12,
+                    fontSize: 14,
+                    fontFamily: colors.font4,
+                    borderRadius: 5,
+                    paddingVertical: 9,
+                  }}
+                  placeholder="Select month"
+                  placeholderTextColor="black"
+                  editable={false}
+                  value={month}
+                />
+              </TouchableOpacity>
+              {showMenu && (
+                <View
+                  style={{
+                    width: '65%',
+                    height: 200,
+                    position: 'absolute',
+                    backgroundColor: '#f9f9f9',
+                    padding: 12,
+                    top: 40,
+                    left: 0,
+                    flexDirection: 'column',
+                    borderRadius: 12,
+                    zIndex: 999,
+                  }}>
+                  <ScrollView
+                    style={{width: '100%', height: 190}}
+                    nestedScrollEnabled>
+                    {monthName.map(month => (
+                      <TouchableOpacity
+                        key={month}
+                        style={{width: '100%', height: 25}}
+                        onPress={() => {
+                          handleMonthChange(month);
+                        }}>
+                        <Text
+                          style={{
+                            color: 'black',
+                            fontSize: 15,
+                            fontFamily: colors.font2,
+                            marginVertical: 3,
+                          }}>
+                          {month}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </ScrollView>
+                </View>
+              )}
+              <TextInput
+                style={{
+                  width: '33%',
+                  height: 36,
+                  backgroundColor: '#f0f0f0',
+                  color: 'black',
+                  paddingHorizontal: 12,
+                  fontSize: 14,
+                  fontFamily: colors.font4,
+                  borderRadius: 5,
+                  paddingVertical: 7,
+                }}
+                placeholder="Year"
+                placeholderTextColor="black"
+                keyboardType="numeric"
+                value={year}
+                onChangeText={handleYearChange}
+              />
+            </View>
+            <View
+              style={{
+                width: '100%',
+                height: 75,
+                backgroundColor: 'gray',
+                opacity: 0.8,
                 borderRadius: 7,
-              }}
-              verticalContentInset={{top: 10, bottom: 10}} // Adjust top and bottom padding
-              horizontalContentInset={{left: 20, right: 50}} // Adjust left and right padding
-            />
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 10,
+                padding: 15,
+                marginVertical: 7,
+              }}>
+              <Image
+                source={require('../assets/fp.png')}
+                style={{width: 48, height: 48}}
+              />
+              <View
+                style={{
+                  flexDirection: 'column',
+                  alignItems: 'flex-start',
+                  width: '75%',
+                }}>
+                <Text
+                  style={{
+                    fontSize: 18,
+                    color: 'black',
+                    fontFamily: colors.font2,
+                  }}>
+                  {month + ' ' + year + ' Footprint'}
+                </Text>
+                <Text
+                  style={{
+                    fontSize: 21,
+                    color: 'black',
+                    fontFamily: colors.font3,
+                  }}>
+                  {barChartFootrpint + ' kg CO2 e'}
+                </Text>
+              </View>
+            </View>
+            {barData ? (
+              <BarChart
+                data={barData}
+                width={Dimensions.get('window').width - 24}
+                height={225}
+                yAxisLabel=""
+                chartConfig={{
+                  backgroundGradientFrom: '#f0f0f0',
+                  backgroundGradientTo: '#f0f0f0',
+                  decimalPlaces: 1,
+                  color: (opacity = 0.7) => `rgba(0, 0, 0, ${opacity})`,
+                  labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+                  style: {
+                    borderRadius: 16,
+                  },
+                  propsForLabels: {
+                    fontFamily: colors.font2,
+                    fontSize: 10,
+                  },
+                }}
+                style={{
+                  borderRadius: 7,
+                }}
+                verticalContentInset={{top: 10, bottom: 10}}
+                horizontalContentInset={{left: 20, right: 50}}
+              />
+            ) : (
+              <Text
+                style={{
+                  color: 'black',
+                  fontFamily: colors.font4,
+                  fontSize: 14,
+                  marginVertical: 10,
+                }}>
+                No data available
+              </Text>
+            )}
             <View style={{height: 200}}></View>
           </ScrollView>
         </View>
-        <View style={{position: 'absolute', bottom: 0, left: 5, right: 5}}>
+        <View style={{position: 'absolute', bottom: 0, left: 0, right: 0}}>
           <BottomNavigation />
         </View>
       </View>
     );
   }
 };
+
 export default Analytics;
 
 const styles = StyleSheet.create({
