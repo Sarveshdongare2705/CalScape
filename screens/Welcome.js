@@ -17,24 +17,24 @@ const Welcome = () => {
       <View style={styles.section1}>
         <Image
           source={require('../assets/logo.png')}
-          style={{width: '100%', height: '100%', objectFit: 'cover'}}
+          style={{width: '55%', height: '70%', objectFit: 'cover'}}
         />
         <View style={{width: '100%'}}>
           <Text
             style={{
-              color: colors.p,
+              color: colors.successGreen,
               fontSize: 30,
               textAlign: 'center',
-              fontWeight: '900',
+              fontFamily : colors.font2
             }}>
-            CalScape
-          </Text>
+            EcoTrack
+          </Text>  
         </View>
       </View>
       <View
         style={{
           width: '100%',
-          height: '35%',
+          height: '60%',
           padding: 7,
           flexDirection: 'column',
           alignItems: 'center',
@@ -45,7 +45,8 @@ const Welcome = () => {
             color: 'black',
             fontSize: 13,
             textAlign: 'center',
-            marginBottom : 10
+            marginBottom : 10,
+            fontFamily : colors.font4,
           }}>
           Empower yourself to make environmentally-conscious choices with our
           Carbon Footprint Calculator app. Easily track your carbon emissions
@@ -54,18 +55,19 @@ const Welcome = () => {
         <TouchableOpacity
           style={{
             width: '50%',
-            backgroundColor: colors.p,
+            backgroundColor: colors.successGreen,
             padding: 7,
             borderRadius: 18,
+            height : 36,
           }}
           onPress={()=>navigation.navigate('Login')}
           >
           <Text
             style={{
               color: 'white',
-              fontSize: 20,
+              fontSize: 16,
               textAlign: 'center',
-              fontWeight: '700',
+              fontFamily : colors.font2
             }}>
             Log In
           </Text>
@@ -73,18 +75,19 @@ const Welcome = () => {
         <TouchableOpacity
           style={{
             width: '50%',
-            backgroundColor: colors.bg2,
+            backgroundColor: colors.successGreen,
             padding: 7,
             borderRadius: 18,
+            height : 36,
           }}
           onPress={()=>navigation.navigate('SignUp')}
           >
           <Text
             style={{
-              color: colors.p,
-              fontSize: 20,
+              color: 'white',
+              fontSize: 16,
               textAlign: 'center',
-              fontWeight: '700',
+              fontFamily : colors.font2
             }}>
             Sign Up
           </Text>
@@ -109,6 +112,7 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     alignItems: 'center',
     gap: 10,
-    height: '55%',
+    height: '40%',
+    marginTop : 90,
   },
 });

@@ -23,6 +23,7 @@ import foodImage from '../assets/food.png';
 import home from '../assets/homeDetails.png';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import firestore from '@react-native-firebase/firestore';
+import { fetchAndUpdateFootprint } from '../utils/footrpintUtils';
 
 const Questionnaire = () => {
   const route = useRoute();
@@ -530,10 +531,11 @@ const Questionnaire = () => {
       await basicDetailsRef.set(data);
       from.trim() === 'signup'
         ? navigation.navigate('Home')
-        : navigation.navigate('Survey', {uid: uid});
+        : navigation.navigate('Survey', {uid: uid , Route : 'Basic Details'});
     } catch (err) {
       console.error(err);
     }
+    fetchAndUpdateFootprint(uid);
     setLoading(false);
   };
 

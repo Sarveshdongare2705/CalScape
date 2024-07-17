@@ -28,6 +28,7 @@ import Module from './screens/Module';
 import NewQuiz from './screens/NewQuiz';
 import BottomNavigation from './components/BottomNavigation';
 import Suggestions from './screens/Suggestions';
+import SurveySuggestions from './screens/SurveySuggestions';
 
 const Stack = createNativeStackNavigator();
 const App = () => {
@@ -50,7 +51,7 @@ const App = () => {
     );
   }
 
-  const initialRouteName = currentUser ? 'Home' : 'SignUp';
+  const initialRouteName = currentUser ? 'Home' : 'Welcome';
   return (
     <NavigationContainer>
       <StatusBar backgroundColor={'white'} barStyle={'dark-content'} />
@@ -80,6 +81,7 @@ const App = () => {
         <Stack.Screen name="Module" component={Module} />
         <Stack.Screen name="NewQuiz" component={NewQuiz} />
         <Stack.Screen name="Suggestions" component={Suggestions} />
+        <Stack.Screen name="SurveySuggestions" component={SurveySuggestions} />
       </Stack.Navigator>
     </NavigationContainer>
   );

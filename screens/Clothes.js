@@ -20,6 +20,7 @@ import clothing from '../assets/clothing.png';
 import cr from '../assets/cr.png';
 import wm from '../assets/wm.png';
 import cm from '../assets/cm.png';
+import { fetchAndUpdateFootprint } from '../utils/footrpintUtils';
 
 const Clothes = () => {
   const route = useRoute();
@@ -143,10 +144,11 @@ const Clothes = () => {
       await recycleDetailsRef.set(data);
       from.trim() === 'signup'
         ? navigation.navigate('Home')
-        : navigation.navigate('Survey', {uid: uid});
+        : navigation.navigate('Survey', {uid: uid , Route : 'Clothing Details'});
     } catch (err) {
       console.error(err);
     }
+    fetchAndUpdateFootprint(uid);
     setLoading(false);
   };
 

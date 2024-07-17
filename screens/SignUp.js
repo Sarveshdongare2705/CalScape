@@ -221,7 +221,7 @@ const SignUp = () => {
               color: 'black',
               fontSize: 22,
               textAlign: 'center',
-              fontWeight: '700',
+              fontFamily : colors.font2,
             }}>
             Create an account
           </Text>
@@ -230,6 +230,7 @@ const SignUp = () => {
               color: 'black',
               fontSize: 14,
               textAlign: 'center',
+              fontFamily : colors.font4,
             }}>
             Join us to track and reduce your carbon footprint!
           </Text>
@@ -323,7 +324,7 @@ const SignUp = () => {
             {uploading ? (
               <ActivityIndicator color={'white'} size={'small'} />
             ) : (
-              <Text style={{fontSize: 18, fontWeight: '700', color: 'white'}}>
+              <Text style={{fontSize: 18, fontFamily : colors.font2 , color: 'white'}}>
                 SignUp
               </Text>
             )}
@@ -331,7 +332,7 @@ const SignUp = () => {
           <View style={{flexDirection: 'row', gap: 5, alignItems: 'center'}}>
             <Text style={styles.txt}>Already have an account?</Text>
             <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-              <Text style={[styles.txt, {color: colors.p, fontWeight: '900'}]}>
+              <Text style={[styles.txt, {color: colors.p,fontFamily : colors.font2,}]}>
                 Login
               </Text>
             </TouchableOpacity>
@@ -389,6 +390,7 @@ const styles = StyleSheet.create({
   inputSection: {
     width: '80%',
     color: 'black',
+    fontFamily : colors.font4,
   },
   btn: {
     width: '90%',
@@ -402,14 +404,15 @@ const styles = StyleSheet.create({
   txt: {
     color: 'black',
     fontSize: 13,
+    fontFamily : colors.font4,
   },
   err: {
-    fontWeight: '900',
     opacity: 0.8,
     fontSize: 10,
     color: colors.errorRed,
     textAlign: 'right',
     paddingRight: 10,
+    fontFamily : colors.font2,
   },
   msg: {
     color: 'white',
@@ -431,5 +434,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     width: '84%',
     height: 23,
+    fontFamily : colors.font4,
   },
 });

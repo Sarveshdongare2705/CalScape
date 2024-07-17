@@ -27,6 +27,7 @@ import recycle7 from '../assets/recycle7.png';
 import recycle8 from '../assets/recycle8.png';
 import recycle9 from '../assets/recycle9.png';
 import recycle10 from '../assets/recycle10.png';
+import { fetchAndUpdateFootprint } from '../utils/footrpintUtils';
 
 const Recycle = () => {
   const route = useRoute();
@@ -153,10 +154,11 @@ const Recycle = () => {
       await recycleDetailsRef.set(data);
       from.trim() === 'signup'
         ? navigation.navigate('Home')
-        : navigation.navigate('Survey', {uid: uid});
+        : navigation.navigate('Survey', {uid: uid , Route : 'Recycle Details'});
     } catch (err) {
       console.error(err);
     }
+    fetchAndUpdateFootprint(uid);
     setLoading(false);
   };
 

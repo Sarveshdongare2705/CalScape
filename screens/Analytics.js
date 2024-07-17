@@ -15,13 +15,18 @@ import {
 } from 'react-native';
 import BottomNavigation from '../components/BottomNavigation';
 import {colors} from '../Colors';
-import {useFocusEffect, useNavigation, useRoute} from '@react-navigation/native';
+import {
+  useFocusEffect,
+  useNavigation,
+  useRoute,
+} from '@react-navigation/native';
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
 import {LineChart, BarChart} from 'react-native-chart-kit';
 import axios from 'axios';
 import {ActivityIndicator} from 'react-native-paper';
 import Leaderboard from './LeaderBoard';
+import {calculateReduction} from '../utils/reductionUtils';
 
 const Analytics = () => {
   const navigation = useNavigation();
@@ -29,7 +34,8 @@ const Analytics = () => {
   const {userId} = route.params;
   const [currentUser, setCurrentUser] = useState(null);
   const [userData, setUserData] = useState(null);
-  const [val, setVal] = useState(0);
+  const [val, setVal] = useState(null);
+  const [prevFootprint, setPrevFootprint] = useState(null);
   const [footprintData, setFootprintData] = useState(null);
   const [others, setOthers] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -157,7 +163,6 @@ const Analytics = () => {
         months.unshift(monthName[monthNum - 1]); // Add month-year to the beginning of the array
         data.unshift(0); // Add 0 to the beginning of the array
       }
-      setLoading(false);
     }
 
     // Set state with the formatted data for LineChart
@@ -175,7 +180,6 @@ const Analytics = () => {
 
   const fetchBarChartData = async (uid, month, year) => {
     setBarChartFootprint(0);
-    setLoading(false);
     const docId = `${month}-${year}`;
     const footprintRef = firestore()
       .collection('Users')
@@ -190,15 +194,13 @@ const Analytics = () => {
         (data.basicDetails ? data.basicDetails : 0) +
         (data.recycleDetails ? data.recycleDetails : 0) +
         (data.travelDetails ? data.travelDetails : 0) +
-        (data.electricityDetails
-          ? data.electricityDetails
-          : 0) +
+        (data.electricityDetails ? data.electricityDetails : 0) +
         (data.energyDetails ? data.energyDetails : 0) +
         (data.foodDetails ? data.foodDetails : 0) +
         (data.clothingDetails ? data.clothingDetails : 0) +
         (data.extraDetails ? data.extraDetails : 0);
-      
-        setBarChartFootprint(total.toFixed(2));
+
+      setBarChartFootprint(total.toFixed(2));
       const barData = {
         labels: [
           'Travel',
@@ -230,6 +232,11 @@ const Analytics = () => {
     setLoading(false);
   };
 
+  const [reducedValue, setReducedValue] = useState({
+    value: null,
+    status: null,
+    percentage: null,
+  });
   useFocusEffect(
     useCallback(() => {
       const unsubscribe = auth().onAuthStateChanged(async user => {
@@ -239,13 +246,15 @@ const Analytics = () => {
           const userDetails = await fetchUserData(user);
           setUserData(userDetails);
           fetchFootprint(userDetails.uid);
+          const result = await calculateReduction(userDetails.uid);
+          setReducedValue(result);
           const currentTime = new Date();
           const currentMonth = currentTime.getMonth();
           const currentYear = currentTime.getFullYear();
           setMonth(monthName[currentMonth]);
           setYear(currentYear.toString());
-          fetchBarChartData(user.uid , currentMonth + 1, currentYear);
           fetchFootprintLineChart(userDetails.uid);
+          fetchBarChartData(user.uid, currentMonth + 1, currentYear);
         }
       });
       return unsubscribe;
@@ -283,7 +292,7 @@ const Analytics = () => {
         <Text style={{color: 'black', fontFamily: colors.font4, fontSize: 14}}>
           Fetching Analytics
         </Text>
-        <View style={{position: 'absolute', bottom: 0, left: 5, right: 5}}>
+        <View style={{position: 'absolute', bottom: 0, left: 0, right: 0}}>
           <BottomNavigation />
         </View>
       </View>
@@ -291,47 +300,6 @@ const Analytics = () => {
   } else {
     return (
       <View style={styles.container}>
-        <View
-          style={{
-            position: 'absolute',
-            bottom: 60,
-            right: 10,
-            zIndex: 999,
-            width: '50%',
-          }}>
-          <TouchableOpacity
-            style={{
-              width: '100%',
-              height: 40,
-              backgroundColor: '#78C8CC',
-              borderRadius: 7,
-              alignItems: 'center',
-              justifyContent: 'center',
-              opacity: 1,
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              paddingHorizontal: 7,
-            }}
-            onPress={() =>
-              navigation.navigate('Survey', {
-                uid: currentUser.uid,
-                Route: 'Home',
-              })
-            }>
-            <Image
-              source={require('../assets/survey.png')}
-              style={styles.icon}
-            />
-            <Text
-              style={{
-                color: 'black',
-                fontSize: 18,
-                fontFamily: colors.font2,
-              }}>
-              Take a Survey!
-            </Text>
-          </TouchableOpacity>
-        </View>
         <View
           style={{
             flexDirection: 'column',
@@ -351,43 +319,131 @@ const Analytics = () => {
               width: '100%',
               height: '90%',
             }}>
+            <View style={{width: '100%'}}>
+              <View
+                style={{
+                  width: '100%',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  paddingTop : 20,
+                }}>
+                <View
+                  style={{
+                    width: 160,
+                    height: 160,
+                    borderRadius: 80,
+                    overflow: 'hidden',
+                    shadowColor:
+                      reducedValue.status === 'increased'
+                        ? colors.errorRed
+                        : reducedValue.status === 'decreased'
+                        ? colors.successGreen
+                        : 'black',
+                    shadowOffset: {
+                      width: 0,
+                      height: 2,
+                    },
+                    shadowOpacity: 1,
+                    shadowRadius: 4,
+                    elevation: 120,
+                    backgroundColor: 'white',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}>
+                  <Text
+                    style={{
+                      color:
+                        reducedValue.status === 'increased'
+                          ? colors.errorRed
+                          : reducedValue.status === 'decreased'
+                          ? colors.successGreen
+                          : 'black',
+                      fontFamily: colors.font3,
+                      fontSize: 40,
+                    }}>
+                    {(reducedValue.percentage ? reducedValue.percentage : '_') + '%'}
+                  </Text>
+                </View>
+                <Text
+                  style={{
+                    color: 'black',
+                    fontFamily: colors.font4,
+                    fontSize: 14,
+                    textAlign: 'center',
+                    paddingHorizontal: 7,
+                    borderRadius: 10,
+                    paddingVertical: 12,
+                  }}>
+                  {reducedValue.status === 'decreased'
+                    ? `You've reduced your footprint by ${reducedValue.percentage}% (${reducedValue.value} kgCO2e) compared to last month. Keep up the good work! Consider exploring more tips and challenges to further reduce your impact on the planet.`
+                    : reducedValue.status === 'increased'
+                    ? `Your footprint has increased by ${reducedValue.percentage}% (${reducedValue.value} kgCO2e) compared to last month. Let's analyze and adjust! Remember, small changes can make a big difference. Explore ways to reduce your impact and contribute to a sustainable future.`
+                    : 'Your previous month data is currently unavailable. This may be due to no track of your activities in last month or a new user.'}
+                </Text>
+                <TouchableOpacity
+                  style={{
+                    width: '60%',
+                    height: 42,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    borderRadius: 30,
+                    backgroundColor: 'black',
+                    marginBottom: 10,
+                    opacity: 0.85,
+                  }}
+                  onPress={() =>
+                    navigation.navigate('Survey', {uid: userData.uid})
+                  }>
+                  <Text
+                    style={{
+                      color: 'white',
+                      fontFamily: colors.font2,
+                      fontSize: 16,
+                    }}>
+                    Take a Survey Now
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
             <Text
               style={{
-                fontSize: 14,
                 color: 'black',
                 fontFamily: colors.font4,
+                fontSize: 14,
               }}>
-              Last 8 months footprint values (kg CO2 e)
+              Footprint value of last 8 months
             </Text>
             <LineChart
               data={lineChartData}
               width={Dimensions.get('window').width - 24}
-              height={190}
+              height={200}
               yAxisSuffix=""
               yAxisInterval={1}
               chartConfig={{
-                backgroundGradientFrom: '#f0f0f0',
-                backgroundGradientTo: '#f0f0f0',
+                backgroundGradientFrom: '#A0D468',
+                backgroundGradientTo: '#8CC152',
                 decimalPlaces: 0,
-                color: (opacity = 1) => `rgba(190, 190, 190, ${opacity})`,
+                color: (opacity = 1) => `#76B041`,
                 labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
                 style: {
-                  borderRadius: 16,
+                  borderRadius: 5,
                 },
                 propsForDots: {
                   r: '6',
-                  strokeWidth: '0.5',
-                  stroke: 'black',
+                  strokeWidth: '2',
+                  stroke: 'white',
                 },
                 propsForLabels: {
                   fontFamily: colors.font2,
                   padding: 5,
                 },
+                propsForBackgroundLines: {
+                  opacity: 0.3,
+                },
               }}
-              bezier
               style={{
                 marginVertical: 8,
-                borderRadius: 7,
+                borderRadius: 3,
               }}
             />
             <Text
@@ -395,7 +451,7 @@ const Analytics = () => {
                 fontSize: 14,
                 color: 'black',
                 fontFamily: colors.font4,
-                marginVertical: 7,
+                marginBottom: 5,
               }}>
               Footprint value distribution
             </Text>
@@ -405,7 +461,6 @@ const Analytics = () => {
                 height: 38,
                 flexDirection: 'row',
                 alignItems: 'center',
-                marginBottom: 7,
                 justifyContent: 'space-between',
               }}>
               <TouchableOpacity
@@ -422,7 +477,7 @@ const Analytics = () => {
                     paddingHorizontal: 12,
                     fontSize: 14,
                     fontFamily: colors.font4,
-                    borderRadius: 5,
+                    borderRadius: 3,
                     paddingVertical: 9,
                   }}
                   placeholder="Select month"
@@ -478,7 +533,7 @@ const Analytics = () => {
                   paddingHorizontal: 12,
                   fontSize: 14,
                   fontFamily: colors.font4,
-                  borderRadius: 5,
+                  borderRadius: 3,
                   paddingVertical: 7,
                 }}
                 placeholder="Year"
@@ -491,10 +546,9 @@ const Analytics = () => {
             <View
               style={{
                 width: '100%',
-                height: 75,
-                backgroundColor: 'gray',
-                opacity: 0.8,
-                borderRadius: 7,
+                height: 60,
+                backgroundColor: colors.footprint,
+                borderRadius: 5,
                 flexDirection: 'row',
                 alignItems: 'center',
                 gap: 10,
@@ -502,8 +556,8 @@ const Analytics = () => {
                 marginVertical: 7,
               }}>
               <Image
-                source={require('../assets/fp.png')}
-                style={{width: 48, height: 48}}
+                source={require('../assets/footprint.png')}
+                style={{width: 30, height: 30}}
               />
               <View
                 style={{
@@ -513,7 +567,7 @@ const Analytics = () => {
                 }}>
                 <Text
                   style={{
-                    fontSize: 18,
+                    fontSize: 16,
                     color: 'black',
                     fontFamily: colors.font2,
                   }}>
@@ -536,17 +590,20 @@ const Analytics = () => {
                 height={225}
                 yAxisLabel=""
                 chartConfig={{
-                  backgroundGradientFrom: '#f0f0f0',
-                  backgroundGradientTo: '#f0f0f0',
+                  backgroundGradientFrom: '#FFCE54',
+                  backgroundGradientTo: '#F6BB42',
                   decimalPlaces: 1,
-                  color: (opacity = 0.7) => `rgba(0, 0, 0, ${opacity})`,
-                  labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+                  color: (opacity = 1) => 'black', // Constant color for all bars
+                  labelColor: (opacity = 0.5) => `rgba(0, 0, 0, ${opacity})`,
                   style: {
                     borderRadius: 16,
                   },
                   propsForLabels: {
                     fontFamily: colors.font2,
                     fontSize: 10,
+                  },
+                  propsForBackgroundLines: {
+                    opacity: 0.1,
                   },
                 }}
                 style={{
@@ -588,8 +645,8 @@ const styles = StyleSheet.create({
     padding: 12,
   },
   icon: {
-    width: 24,
-    height: 24,
+    width: 21,
+    height: 21,
     objectFit: 'contain',
   },
 });

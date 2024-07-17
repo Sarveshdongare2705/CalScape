@@ -19,8 +19,19 @@ const BottomNavigation = () => {
     setAdminUid(data.uid);
   };
 
+  //fetch api url
+  const [apiUrl, setApiUrl] = useState(null);
+
+  const fetchUrl = async () => {
+    const docRef = await firestore().collection('apiUrl').doc('url1');
+    const doc = await docRef.get();
+    const data = doc.data();
+    setApiUrl(data.url);
+  };
+
   useFocusEffect(
     React.useCallback(() => {
+      fetchUrl();
       fetchAdmin();
     }, []),
   );
@@ -58,18 +69,22 @@ const BottomNavigation = () => {
           <Image source={require('../assets/home.png')} style={styles.img} />
           <Text style={styles.txt}>Home</Text>
         </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.button]}
-          onPress={() =>
-            navigation.navigate('Suggestions', {userData: userData})
-          }>
-          <Image
-            source={require('../assets/suggestions.png')}
-            style={styles.img}
-          />
-          <Text style={styles.txt}>Suggestions</Text>
-        </TouchableOpacity>
-
+        {apiUrl && (
+          <TouchableOpacity
+            style={[styles.button]}
+            onPress={() =>
+              navigation.navigate('Suggestions', {
+                userData: userData,
+                url: apiUrl,
+              })
+            }>
+            <Image
+              source={require('../assets/suggestions.png')}
+              style={styles.img}
+            />
+            <Text style={styles.txt}>Suggestions</Text>
+          </TouchableOpacity>
+        )}
         <TouchableOpacity
           style={[styles.button]}
           onPress={() =>
@@ -112,7 +127,10 @@ const BottomNavigation = () => {
         <TouchableOpacity
           style={[styles.button]}
           onPress={() =>
-            navigation.navigate('Suggestions', {userData: userData})
+            navigation.navigate('Suggestions', {
+              userData: userData,
+              url: apiUrl,
+            })
           }>
           <Image
             source={require('../assets/suggestions.png')}
@@ -153,7 +171,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 5,
     paddingVertical: 7,
-    backgroundColor: '#78C8CC',
+    backgroundColor: colors.bg2,
     width: '100%',
     alignItems: 'center',
     borderRadius: 3,

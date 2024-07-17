@@ -96,7 +96,8 @@ const ForgotPassword = () => {
               color: 'black',
               fontSize: 22,
               textAlign: 'center',
-              fontWeight: '700',
+              fontFamily : colors.font2,
+              marginBottom : 5,
             }}>
             Forgot Password ?
           </Text>
@@ -106,6 +107,7 @@ const ForgotPassword = () => {
               fontSize: 14,
               textAlign: 'center',
               paddingHorizontal: 15,
+              fontFamily : colors.font4,
             }}>
             Enter the email address you used to Login with CalScape. You will
             receive an email to define a new password.
@@ -135,7 +137,7 @@ const ForgotPassword = () => {
             {uploading ? (
               <ActivityIndicator color={'white'} size={'small'} />
             ) : (
-              <Text style={{fontSize: 18, fontWeight: '700', color: 'white'}}>
+              <Text style={{fontSize: 18, fontFamily : colors.font2, color: 'white'}}>
                 Send Email
               </Text>
             )}
@@ -143,7 +145,7 @@ const ForgotPassword = () => {
           <View style={{flexDirection: 'row', gap: 5, alignItems: 'center'}}>
             <Text style={styles.txt}>Remember your password ?</Text>
             <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-              <Text style={[styles.txt, {color: colors.p, fontWeight: '900'}]}>
+              <Text style={[styles.txt, {color: colors.p, fontFamily : colors.font2,}]}>
                 Login
               </Text>
             </TouchableOpacity>
@@ -201,6 +203,7 @@ const styles = StyleSheet.create({
   inputSection: {
     width: '80%',
     color: 'black',
+    fontFamily : colors.font4,
   },
   btn: {
     width: '90%',
@@ -214,14 +217,15 @@ const styles = StyleSheet.create({
   txt: {
     color: 'black',
     fontSize: 13,
+    fontFamily : colors.font4,
   },
   err: {
-    fontWeight: '900',
     opacity: 0.8,
     fontSize: 10,
     color: colors.errorRed,
     textAlign: 'right',
     paddingRight: 10,
+    fontFamily : colors.font2,
   },
   msg: {
     color: 'white',
@@ -241,5 +245,6 @@ const styles = StyleSheet.create({
   msgtxt: {
     color: 'white',
     fontSize: 16,
+    fontFamily : colors.font4,
   },
 });

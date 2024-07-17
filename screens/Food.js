@@ -19,6 +19,7 @@ import Slider from '@react-native-community/slider';
 
 import clothing from '../assets/food1.png';
 import food2 from '../assets/food2.png';
+import { fetchAndUpdateFootprint } from '../utils/footrpintUtils';
 
 const Food = () => {
   const route = useRoute();
@@ -134,10 +135,11 @@ const Food = () => {
       await recycleDetailsRef.set(data);
       from.trim() === 'signup'
         ? navigation.navigate('Home')
-        : navigation.navigate('Survey', {uid: uid});
+        : navigation.navigate('Survey', {uid: uid , Route : 'Food and Diet Details'});
     } catch (err) {
       console.error(err);
     }
+    fetchAndUpdateFootprint(uid);
     setLoading(false);
   };
 

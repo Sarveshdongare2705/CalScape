@@ -23,6 +23,7 @@ import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
 import storage from '@react-native-firebase/storage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import determineLeague, {calculateReduction} from '../utils/reductionUtils';
 
 const Profile = () => {
   const route = useRoute();
@@ -115,46 +116,44 @@ const Profile = () => {
     }
   };
 
+  //league
+  const [leagueDetails, setLeagueDetails] = useState({
+    leagueName: null,
+    imageUrl: null,
+    text: null,
+  });
+
+  //reduction
+  const [reducedValue, setReducedValue] = useState({
+    value: null,
+    status: null,
+    percentage: null,
+  });
+
   useFocusEffect(
     useCallback(() => {
       setUserData(null);
       const unsubscribe = auth().onAuthStateChanged(async user => {
         if (user) {
-          fetchAdmin()
+          fetchAdmin();
           setCurrentUser(user);
-          const prevUid = await AsyncStorage.getItem('user');
-          const prevCurrentUser = await AsyncStorage.getItem('currentUser');
-          const prevCurrentUserData = JSON.parse(prevCurrentUser);
-          const prevCUid = prevCurrentUserData.uid;
-          if (uid === prevUid && user.uid === prevCUid) {
-            setCurrentUserData(prevCurrentUserData);
-            const data = await AsyncStorage.getItem('data');
-            const parseData = JSON.parse(data);
-            fetchFootprint(uid);
-            setUserData(parseData);
-            setEmail(parseData.email);
-            setUsername(parseData.username);
-            setContact(parseData.contact);
-          } else {
-            const currentUserDetails = await fetchCurrentuserData(user);
-            await AsyncStorage.setItem(
-              'currentUser',
-              JSON.stringify(currentUserDetails),
-            );
-            setCurrentUserData(currentUserDetails);
-            const userDetails = await fetchUserData();
-            await AsyncStorage.setItem('user', uid);
-            await AsyncStorage.setItem('data', JSON.stringify(userDetails));
-            fetchFootprint(uid);
-            setUserData(userDetails);
-            if (userDetails) {
-              setEmail(userDetails.email);
-              setUsername(userDetails.username);
-              setContact(userDetails.contact);
-            }
+          const currentUserDetails = await fetchCurrentuserData(user);
+          fetchFootprint(currentUserDetails.uid);
+          setCurrentUserData(currentUserDetails);
+          setUserData(currentUserDetails);
+          const league = await determineLeague(uid);
+          console.log('league', league);
+          setLeagueDetails(league);
+          const reduced = await calculateReduction(uid);
+          setReducedValue(reduced);
+          if (currentUserDetails) {
+            setEmail(currentUserDetails.email);
+            setUsername(currentUserDetails.username);
+            setContact(currentUserDetails.contact);
           }
         }
       });
+
       return unsubscribe;
     }, [uid]),
   );
@@ -249,9 +248,31 @@ const Profile = () => {
     setLoading(false);
   };
 
+  const leagues = [
+    {
+      name: 'Rainforest',
+      img: 'https://cdn-icons-png.flaticon.com/128/7922/7922738.png',
+    },
+    {
+      name: 'Forest',
+      img: 'https://cdn-icons-png.flaticon.com/128/685/685022.png',
+    },
+    {
+      name: 'Tree',
+      img: 'https://cdn-icons-png.flaticon.com/128/2713/2713505.png',
+    },
+    {
+      name: 'Sapling',
+      img: 'https://cdn-icons-png.flaticon.com/128/11639/11639345.png',
+    },
+    {
+      name: 'Seedling',
+      img: 'https://cdn-icons-png.flaticon.com/128/2227/2227504.png',
+    },
+  ];
+
   return (
     <View style={styles.container}>
-      <StatusBar backgroundColor={colors.bg2} barStyle={'dark-content'} />
       {updateModal && (
         <View
           style={{
@@ -422,35 +443,36 @@ const Profile = () => {
         <View
           style={{
             position: 'absolute',
-            width: '78%',
-            height: 140,
+            width: '50%',
+            height: 90,
             backgroundColor: '#FAFAFA',
             zIndex: 999,
-            top: '37%',
-            left: '11%',
-            borderRadius: 15,
-            paddingHorizontal: 15,
-            paddingVertical: 15,
+            top: '31%',
+            right: '3%',
+            borderRadius: 3,
+            paddingHorizontal: 7,
+            paddingVertical: 7,
             flexDirection: 'column',
             shadowColor: 'black',
             shadowOpacity: 0.25,
             shadowRadius: 3,
             elevation: 7,
+            justifyContent: 'space-between',
           }}>
-          <View style={{width: '100%', height: 90, alignItems: 'flex-start'}}>
+          <View style={{width: '100%', alignItems: 'flex-start'}}>
             <Text
-              style={{color: 'black', fontSize: 17, fontFamily: colors.font1}}>
+              style={{color: 'black', fontSize: 14, fontFamily: colors.font1}}>
               Are you sure you want to logout ?
             </Text>
           </View>
-          <View style={{width: '100%', height: 40, alignItems: 'flex-end'}}>
-            <View style={{flexDirection: 'row', gap: 20, alignItems: 'center'}}>
+          <View style={{width: '100%', alignItems: 'flex-end'}}>
+            <View style={{flexDirection: 'row', gap: 12, alignItems: 'center'}}>
               <TouchableOpacity onPress={handleLogout}>
                 <Text
                   style={{
                     color: colors.p,
-                    fontSize: 21,
-                    fontFamily: colors.font2,
+                    fontSize: 18,
+                    fontFamily: colors.font4,
                   }}>
                   Yes
                 </Text>
@@ -459,8 +481,8 @@ const Profile = () => {
                 <Text
                   style={{
                     color: colors.errorRed,
-                    fontSize: 21,
-                    fontFamily: colors.font2,
+                    fontSize: 18,
+                    fontFamily: colors.font4,
                   }}>
                   No
                 </Text>
@@ -471,7 +493,7 @@ const Profile = () => {
       )}
       <View
         style={{
-          width: '93%',
+          width: '89%',
           position: 'absolute',
           zIndex: 999,
           top: 12,
@@ -479,6 +501,7 @@ const Profile = () => {
           flexDirection: 'row',
           alignItems: 'center',
           justifyContent: 'space-between',
+          marginLeft: '2%',
         }}>
         <View style={{flexDirection: 'row', gap: 10, alignItems: 'center'}}>
           {!updateModal && (
@@ -503,23 +526,50 @@ const Profile = () => {
         style={{
           flexDirection: 'row',
           alignItems: 'center',
-          width: '100%',
-          marginBottom: 20,
+          width: '96%',
           backgroundColor: colors.bg2,
           paddingVertical: 30,
-          paddingHorizontal: 20,
+          paddingHorizontal: 16,
           gap: 10,
+          marginLeft: '2%',
+          borderRadius: 7,
         }}>
-        <View style={{position: 'absolute', bottom: 20, left: 24}}>
+        <View
+          style={{
+            position: 'absolute',
+            bottom: 10,
+            left: 24,
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+          }}>
           <Text
             style={{
               color: 'black',
               fontSize: 15,
               fontFamily: colors.font2,
               opacity: 0.9,
+              width: '93%',
             }}>
             {userData && 'Member since ' + userData.member_since}
           </Text>
+          {!loading && (
+            <View style={{flexDirection: 'row', alignItems: 'center', gap: 7}}>
+              <TouchableOpacity onPress={() => showUpdateModal(!updateModal)}>
+                <Image
+                  source={require('../assets/editProfile.png')}
+                  style={{width: 36, height: 36}}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => setShowLogoutModal(!showLogoutModal)}>
+                <Image
+                  source={require('../assets/logoutIcon.png')}
+                  style={{width: 24, height: 24}}
+                />
+              </TouchableOpacity>
+            </View>
+          )}
         </View>
         <Image
           source={
@@ -530,7 +580,7 @@ const Profile = () => {
           style={{
             width: 100,
             height: 100,
-            borderRadius: 45,
+            borderRadius: 50,
             marginVertical: 20,
             marginTop: 40,
             borderWidth: 3,
@@ -568,148 +618,364 @@ const Profile = () => {
           </Text>
         </View>
       </View>
-      { uid !== adminUid && (
-        <View
-          style={{
-            width: '94%',
-            height: 100,
-            backgroundColor: '#228B22',
-            opacity: 0.8,
-            borderRadius: 10,
-            flexDirection: 'row',
-            alignItems: 'center',
-            gap: 10,
-            padding: 15,
-            marginLeft: '3%',
-            marginBottom: 10,
-            marginTop: -10,
-          }}>
-          <Image
-            source={require('../assets/footprint.png')}
-            style={{width: 60, height: 66}}
-          />
+      {currentUserData && userData && currentUserData.uid === userData.uid && (
+        <ScrollView style={{width: '100%', paddingHorizontal: 10}}>
           <View
             style={{
+              width: '100%',
               flexDirection: 'column',
-              alignItems: 'flex-start',
-              width: '75%',
+              alignItems: 'center',
+              marginBottom: 18,
+              marginTop: 7,
+              justifyContent: 'space-around',
+              gap: 10,
             }}>
-            <Text
+            <View
               style={{
-                fontSize: 20,
-                color: 'black',
-                fontFamily: colors.font2,
+                width: '96%',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: 5,
+                padding: 7,
+                overflow: 'hidden',
+                shadowColor: 'black',
+                shadowOffset: {
+                  width: 0,
+                  height: 2,
+                },
+                shadowOpacity: 1,
+                shadowRadius: 4,
+                elevation: 5,
+                backgroundColor: 'white',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: 3,
               }}>
-              Current footprint
-            </Text>
-            <Text
+              <Text
+                style={{
+                  width: '100%',
+                  textAlign: 'left',
+                  fontSize: 16,
+                  fontFamily: colors.font2,
+                  color: 'black',
+                }}>
+                {'League Stage'}
+              </Text>
+              <View
+                style={{
+                  width: '100%',
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  paddingHorizontal: 7,
+                  paddingVertical: 7,
+                  gap: 10,
+                }}>
+                {leagueDetails.imageUrl && (
+                  <Image
+                    source={{uri: leagueDetails.imageUrl}}
+                    style={{width: 72, height: 72}}
+                  />
+                )}
+                <View
+                  style={{
+                    flexDirection: 'column',
+                    alignItems: 'flex-start',
+                    width: '72%',
+                  }}>
+                  <View
+                    style={{
+                      width: '100%',
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      gap: 3,
+                    }}>
+                    <Text
+                      style={{
+                        textAlign: 'left',
+                        fontSize: 15,
+                        fontFamily: colors.font4,
+                        color: 'black',
+                      }}>
+                      {'Current League : '}
+                    </Text>
+                    <Text
+                      style={{
+                        textAlign: 'left',
+                        fontSize: 15,
+                        fontFamily: colors.font2,
+                        color: 'black',
+                      }}>
+                      {leagueDetails.leagueName}
+                    </Text>
+                  </View>
+                  <Text
+                    style={{
+                      width: '100%',
+                      textAlign: 'left',
+                      fontSize: 13,
+                      fontFamily: colors.font4,
+                      color: 'black',
+                    }}>
+                    {leagueDetails.text}
+                  </Text>
+                  {userData.previousLeague && (
+                    <View
+                      style={{
+                        width: '100%',
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        gap: 3,
+                      }}>
+                      <Text
+                        style={{
+                          textAlign: 'left',
+                          fontSize: 15,
+                          fontFamily: colors.font4,
+                          color: 'black',
+                        }}>
+                        {'Previous League : '}
+                      </Text>
+                      <Text
+                        style={{
+                          textAlign: 'left',
+                          fontSize: 15,
+                          fontFamily: colors.font2,
+                          color: 'black',
+                        }}>
+                        {userData.previousLeague}
+                      </Text>
+                    </View>
+                  )}
+                </View>
+              </View>
+            </View>
+            <View
               style={{
-                fontSize: 24,
-                color: 'black',
-                fontFamily: colors.font3,
+                width: '96%',
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between',
               }}>
-              {val} kg CO2 e
-            </Text>
+              <View
+                style={{
+                  width: '48%',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: 5,
+                  overflow: 'hidden',
+                  shadowColor: 'black',
+                  shadowOffset: {
+                    width: 0,
+                    height: 2,
+                  },
+                  shadowOpacity: 1,
+                  shadowRadius: 4,
+                  elevation: 5,
+                  backgroundColor: 'white',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderRadius: 3,
+                  padding: 7,
+                  height: 187,
+                }}>
+                <Text
+                  style={{
+                    width: '100%',
+                    textAlign: 'left',
+                    fontSize: 16,
+                    fontFamily: colors.font2,
+                    color: 'black',
+                    height: 25,
+                  }}>
+                  {'All Leagues'}
+                </Text>
+                <ScrollView
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    padding: 3,
+                    height: 160,
+                  }}
+                  nestedScrollEnabled>
+                  {leagues.map(league => (
+                    <View
+                      style={{
+                        width: '100%',
+                        height: 40,
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        backgroundColor:
+                          leagueDetails.leagueName === league.name
+                            ? colors.bg2
+                            : userData.previousLeague === league.name
+                            ? colors.errorRed
+                            : '#f0f0f0',
+                        marginBottom: 5,
+                        gap: 7,
+                        paddingHorizontal: 7,
+                        borderRadius: 3,
+                      }}>
+                      <Image
+                        source={{uri: league.img}}
+                        style={{width: 30, height: 30}}
+                      />
+                      <Text
+                        style={{
+                          fontSize: 14,
+                          fontFamily: colors.font2,
+                          color: 'black',
+                        }}>
+                        {league.name}
+                      </Text>
+                    </View>
+                  ))}
+                </ScrollView>
+              </View>
+              <View
+                style={{
+                  width: '48%',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: 7,
+                }}>
+                <View
+                  style={{
+                    width: '100%',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: 5,
+                    overflow: 'hidden',
+                    shadowColor: 'black',
+                    shadowOffset: {
+                      width: 0,
+                      height: 2,
+                    },
+                    shadowOpacity: 1,
+                    shadowRadius: 4,
+                    elevation: 5,
+                    backgroundColor: 'white',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    borderRadius: 3,
+                    padding: 7,
+                    height: 90,
+                  }}>
+                  <Text
+                    style={{
+                      color: 'black',
+                      fontSize: 14,
+                      fontFamily: colors.font4,
+                      height: 35,
+                    }}>
+                    Current footprint value in kgCO2 e
+                  </Text>
+                  <View
+                    style={{
+                      width: '100%',
+                      height: 36,
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}>
+                    <Text
+                      style={{
+                        color:
+                          reducedValue.status === 'increased'
+                            ? colors.errorRed
+                            : reducedValue.status === 'decreased'
+                            ? colors.successGreen
+                            : 'black',
+                        fontFamily: colors.font3,
+                        fontSize: 30,
+                      }}>
+                      {val}
+                    </Text>
+                  </View>
+                </View>
+                <View
+                  style={{
+                    width: '100%',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: 5,
+                    overflow: 'hidden',
+                    shadowColor: 'black',
+                    shadowOffset: {
+                      width: 0,
+                      height: 2,
+                    },
+                    shadowOpacity: 1,
+                    shadowRadius: 4,
+                    elevation: 5,
+                    backgroundColor: 'white',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    borderRadius: 3,
+                    padding: 7,
+                    height: 90,
+                  }}>
+                  {reducedValue.status === 'decreased' ? (
+                    <Text
+                      style={{
+                        color: 'black',
+                        fontSize: 14,
+                        fontFamily: colors.font4,
+                        height: 35,
+                      }}>
+                      Footprint value reduced by
+                    </Text>
+                  ) : reducedValue.status === 'increased' ? (
+                    <Text
+                      style={{
+                        color: 'black',
+                        fontSize: 14,
+                        fontFamily: colors.font4,
+                        height: 35,
+                      }}>
+                      Footprint value increased by
+                    </Text>
+                  ) : (
+                    <Text
+                      style={{
+                        color: 'black',
+                        fontSize: 14,
+                        fontFamily: colors.font4,
+                        height: 35,
+                      }}>
+                      No data available
+                    </Text>
+                  )}
+                  <View
+                    style={{
+                      width: '100%',
+                      height: 36,
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}>
+                    <Text
+                      style={{
+                        color:
+                          reducedValue.status === 'increased'
+                            ? colors.errorRed
+                            : reducedValue.status === 'decreased'
+                            ? colors.successGreen
+                            : 'black',
+                        fontFamily: colors.font3,
+                        fontSize: 30,
+                      }}>
+                      {(reducedValue.percentage
+                        ? reducedValue.percentage
+                        : '_') + '%'}
+                    </Text>
+                  </View>
+                </View>
+              </View>
+            </View>
           </View>
-        </View>
-      )}
-      {currentUserData && userData && currentUserData.uid === userData.uid && (
-        <ScrollView style={{width: '100%', paddingHorizontal: 15}}>
-          <TouchableOpacity
-            style={{
-              width: '100%',
-              height: 60,
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              paddingHorizontal: 7,
-            }}
-            onPress={() => showUpdateModal(!updateModal)}>
-            <View
-              style={{
-                padding: 15,
-                backgroundColor: '#ffff55',
-                alignItems: 'center',
-                justifyContent: 'center',
-                borderRadius: 18,
-              }}>
-              <Image
-                source={require('../assets/account.png')}
-                style={styles.icon}
-              />
-            </View>
-            <Text
-              style={{
-                color: 'black',
-                fontSize: 17,
-                fontFamily: colors.font2,
-                opacity: 0.4,
-              }}>
-              Update Profile
-            </Text>
-            <View
-              style={{
-                padding: 10,
-                alignItems: 'center',
-                justifyContent: 'center',
-                borderRadius: 18,
-              }}>
-              <Image
-                source={require('../assets/forward.png')}
-                style={styles.icon}
-              />
-            </View>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={{
-              width: '100%',
-              height: 60,
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              paddingHorizontal: 7,
-            }}
-            onPress={() => setShowLogoutModal(!showLogoutModal)}>
-            <View
-              style={{
-                padding: 15,
-                backgroundColor: '#F060D6',
-                alignItems: 'center',
-                justifyContent: 'center',
-                borderRadius: 18,
-              }}>
-              <Image
-                source={require('../assets/logout.png')}
-                style={styles.icon}
-              />
-            </View>
-            <Text
-              style={{
-                color: 'black',
-                fontSize: 17,
-                fontFamily: colors.font2,
-                opacity: 0.4,
-              }}>
-              Logout
-            </Text>
-            <View
-              style={{
-                padding: 10,
-                alignItems: 'center',
-                justifyContent: 'center',
-                borderRadius: 18,
-              }}>
-              <Image
-                source={require('../assets/forward.png')}
-                style={styles.icon}
-              />
-            </View>
-          </TouchableOpacity>
+          <View style={{height: 100}}></View>
         </ScrollView>
       )}
-      <View style={{position: 'absolute', bottom: 0, left: 0, right: 0}}>
-          <BottomNavigation />
-        </View>
     </View>
   );
 };

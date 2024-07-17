@@ -25,6 +25,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Leaderboard from './LeaderBoard';
 import QuizScreen from './QuizScreen';
 import YoutubeIframe from 'react-native-youtube-iframe';
+import WeatherInMumbai from '../components/Weather';
+import determineLeague, {calculateReduction} from '../utils/reductionUtils';
+import { fetchAndUpdateFootprint } from '../utils/footrpintUtils';
 
 const Home = () => {
   const navigation = useNavigation();
@@ -222,6 +225,18 @@ const Home = () => {
     }
   };
 
+  const [reducedValue, setReducedValue] = useState({
+    value: null,
+    status: null,
+    percentage: null,
+  });
+
+  const [leagueDetails, setLeagueDetails] = useState({
+    leagueName: null,
+    text: null,
+    imageUrl: null,
+  });
+
   useFocusEffect(
     useCallback(() => {
       const date = new Date();
@@ -243,6 +258,10 @@ const Home = () => {
           fetchAdmin();
           setCurrentUser(user);
           const userDetails = await fetchUserData(user);
+          const result = await calculateReduction(userDetails.uid);
+          const result2 = await determineLeague(userDetails.uid);
+          setLeagueDetails(result2);
+          setReducedValue(result);
           setUserData(userDetails);
           fetchFootprint(userDetails.uid);
           fetchNews();
@@ -251,6 +270,34 @@ const Home = () => {
       return unsubscribe;
     }, []),
   );
+
+  const updateFootprint = async () => {
+    await fetchAndUpdateFootprint(userData.uid);
+  };
+
+  useEffect(() => {
+    const checkDateAndFetchFootprint = () => {
+      const today = new Date();
+      const dayOfMonth = today.getDate();
+
+      // Call fetchAndUpdateFootprint only if today is the 1st of the month
+      if (dayOfMonth === 1) {
+        updateFootprint();
+      }
+    };
+
+    // Check every day at midnight
+    const intervalId = setInterval(
+      checkDateAndFetchFootprint,
+      24 * 60 * 60 * 1000,
+    );
+
+    // Initial check when the app starts
+    checkDateAndFetchFootprint();
+
+    // Cleanup interval on unmount
+    return () => clearInterval(intervalId);
+  }, [userData]);
 
   const images = [
     'https://www.powermag.com/wp-content/uploads/2015/12/PWR_120115_GM_Fig3.jpg',
@@ -294,8 +341,78 @@ const Home = () => {
     setIdUpdaing(false);
   };
 
+  const [showTipModule, setShowTipModule] = useState(false);
+
   return (
     <View style={styles.container}>
+      {showTipModule && (
+        <View
+          style={{
+            position: 'absolute',
+            top: '10%',
+            left: '10%',
+            width: '85%',
+            height: '40%',
+            backgroundColor: colors.tip,
+            borderRadius: 5,
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: 3,
+            padding: 10,
+            zIndex: 999,
+          }}>
+          <View
+            style={{
+              flexDirection: 'column',
+              width: '100%',
+              alignItems: 'center',
+              gap: 3,
+            }}>
+            <Image
+              source={require('../assets/tip.png')}
+              style={{width: 90, height: 90}}
+            />
+            <Text
+              style={{
+                fontSize: 21,
+                color: 'black',
+                fontFamily: colors.font2,
+              }}>
+              Tip of the day
+            </Text>
+          </View>
+          <Text
+            style={{
+              fontSize: 14,
+              color: 'black',
+              fontFamily: colors.font4,
+              width: '100%',
+              textAlign: 'center',
+            }}>
+            {tip}
+          </Text>
+          <TouchableOpacity
+            style={{
+              width: '60%',
+              borderWidth: 1,
+              borderColor: 'black',
+              height: 40,
+              borderRadius: 32,
+              alignItems: 'center',
+              justifyContent: 'center',
+              position: 'absolute',
+              bottom: 18,
+            }}
+            onPress={() => {
+              setShowTipModule(false);
+            }}>
+            <Text
+              style={{color: 'black', fontFamily: colors.font2, fontSize: 16}}>
+              Close
+            </Text>
+          </TouchableOpacity>
+        </View>
+      )}
       <StatusBar backgroundColor={'white'} barStyle={'dark-content'} />
       <View style={[styles.section, {paddingBottom: 7}]}>
         <TouchableOpacity
@@ -308,14 +425,20 @@ const Home = () => {
               width: '80%',
               overflow: 'hidden',
             }}>
-            <Image
-              source={
-                userData && userData.profileImg
-                  ? {uri: userData.profileImg}
-                  : require('../assets/profileImg.png')
-              }
-              style={{width: 42, height: 42, borderRadius: 21}}
-            />
+            {userData && userData.profileImg ? (
+              <Image
+                source={{uri: userData.profileImg}}
+                style={{width: 42, height: 42, borderRadius: 21}}
+              />
+            ) : (
+              <View
+                style={{
+                  width: 42,
+                  height: 42,
+                  borderRadius: 21,
+                  backgroundColor: colors.bg2,
+                }}></View>
+            )}
             <View
               style={{
                 flexDirection: 'column',
@@ -331,16 +454,30 @@ const Home = () => {
                 }}>
                 {currentDate}
               </Text>
-              <Text
-                style={{
-                  color: 'black',
-                  fontSize: 18,
-                  width: '100%',
-                  fontFamily: colors.font4,
-                  height: 24,
-                }}>
-                {greeting + (' ' + (userData ? userData.username : 'Guest'))}
-              </Text>
+              {userData ? (
+                <Text
+                  style={{
+                    color: 'black',
+                    fontSize: 18,
+                    width: '100%',
+                    fontFamily: colors.font4,
+                    height: 24,
+                  }}>
+                  {greeting + (' ' + (userData ? userData.username : 'Guest'))}
+                </Text>
+              ) : (
+                <Text
+                  style={{
+                    color: 'black',
+                    fontSize: 18,
+                    width: '100%',
+                    fontFamily: colors.font4,
+                    height: 24,
+                    backgroundColor: '#f0f0f9',
+                    opacity: 0.5,
+                    borderRadius: 3,
+                  }}></Text>
+              )}
             </View>
           </View>
         </TouchableOpacity>
@@ -350,7 +487,7 @@ const Home = () => {
             alignItems: 'center',
           }}
           onPress={() =>
-            navigation.navigate('LeaderBoard', {uid: userData.uid})
+            userData && navigation.navigate('LeaderBoard', {uid: userData.uid})
           }>
           <Image source={require('../assets/rank.png')} style={styles.icon} />
         </TouchableOpacity>
@@ -365,152 +502,228 @@ const Home = () => {
           />
         </TouchableOpacity>
       </View>
-      <View style={{width: '100%', height: '86%', alignItems: 'center'}}>
-        <View
-          style={{
-            width: '100%',
-            height: 150,
-            overflow: 'hidden',
-            borderRadius: 10,
-          }}>
-          <ImageBackground
-            source={{
-              uri: images[currentImageIndex],
-            }}>
-            <View
-              style={{
-                width: '100%',
-                height: 150,
-                borderRadius: 10,
-                flexDirection: 'row',
-                alignItems: 'center',
-                gap: 10,
-                padding: 15,
-                marginBottom: 10,
-                opacity: 0.9,
-              }}>
-              <View
-                style={{
-                  flexDirection: 'column',
-                  alignItems: 'flex-start',
-                  width: '100%',
-                }}>
-                <Text
-                  style={{
-                    fontSize: 24,
-                    color: 'red',
-                    fontFamily: colors.font3,
-                  }}>
-                  Deadline
-                </Text>
-                <Text
-                  style={{
-                    fontSize: 15,
-                    color: 'white',
-                    fontFamily: colors.font2,
-                  }}>
-                  Time Left to Limit Global Warming to 1.5°C
-                </Text>
-                <Text
-                  style={{
-                    fontSize: 25,
-                    color: 'white',
-                    fontFamily: colors.font3,
-                    paddingVertical: 5,
-                  }}>
-                  <Text style={styles.time}>{`${timeLeft.years || '0'}yrs ${
-                    timeLeft.days || '0'
-                  }d ${timeLeft.hours || '00'}h ${timeLeft.minutes || '00'}m ${
-                    timeLeft.seconds || '00'
-                  }s`}</Text>
-                </Text>
-              </View>
-            </View>
-          </ImageBackground>
+      <View
+        style={{
+          width: '100%',
+          height: 32,
+          backgroundColor: '#f0f0f9',
+          borderRadius: 3,
+          marginBottom: 5,
+          alignItems: 'center',
+          paddingHorizontal: 7,
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+        }}>
+        <View style={{flexDirection: 'row', alignItems: 'center', gap: 5}}>
+          <Text
+            style={{color: 'black', fontFamily: colors.font4, fontSize: 14}}>
+            You are currently in
+          </Text>
+          <Text
+            style={{color: 'black', fontFamily: colors.font2, fontSize: 14}}>
+            {leagueDetails.leagueName
+              ? leagueDetails.leagueName + ' League'
+              : 'No League'}
+          </Text>
         </View>
-        <ScrollView style={{width: '100%', marginTop: 7}}>
-          {userData && userData.uid !== adminUid && (
-            <View
+        {reducedValue.percentage && (
+          <View style={{flexDirection: 'row', alignItems: 'center', gap: 5}}>
+            <Text
               style={{
-                width: '100%',
-                height: 100,
-                backgroundColor: '#228B22',
-                opacity: 0.8,
-                borderRadius: 7,
-                flexDirection: 'row',
-                alignItems: 'center',
-                gap: 10,
-                padding: 15,
-                marginVertical: 7,
+                color:
+                  reducedValue.status === 'decreased'
+                    ? colors.successGreen
+                    : reducedValue.status === 'increased'
+                    ? colors.errorRed
+                    : 'black',
+                fontFamily: colors.font3,
+                fontSize: 14,
+                gap: 5,
               }}>
+              {reducedValue.percentage + '%'}
+            </Text>
+            {reducedValue.status === 'increased' ? (
               <Image
-                source={require('../assets/footprint.png')}
-                style={{width: 60, height: 66}}
+                source={require('../assets/increased.png')}
+                style={{width: 16, height: 16}}
               />
-              <View
-                style={{
-                  flexDirection: 'column',
-                  alignItems: 'flex-start',
-                  width: '75%',
-                }}>
-                <Text
-                  style={{
-                    fontSize: 20,
-                    color: 'black',
-                    fontFamily: colors.font2,
-                  }}>
-                  Current footprint
-                </Text>
-                <Text
-                  style={{
-                    fontSize: 24,
-                    color: 'black',
-                    fontFamily: colors.font3,
-                  }}>
-                  {val} kg CO2 e
-                </Text>
-              </View>
-            </View>
-          )}
+            ) : (
+              <Image
+                source={require('../assets/decreased.png')}
+                style={{width: 16, height: 16}}
+              />
+            )}
+          </View>
+        )}
+      </View>
+      <View style={{width: '100%', height: '86%', alignItems: 'center'}}>
+        <ScrollView style={{width: '100%'}}>
           <View
             style={{
               width: '100%',
-              minHeight: 140,
-              backgroundColor: 'orange',
-              opacity: 0.8,
-              borderRadius: 10,
+              height: 120,
+              overflow: 'hidden',
+              borderRadius: 5,
+            }}>
+            <ImageBackground
+              source={{
+                uri: images[currentImageIndex],
+              }}>
+              <View
+                style={{
+                  width: '100%',
+                  height: 120,
+                  borderRadius: 5,
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  gap: 10,
+                  padding: 15,
+                  marginBottom: 10,
+                  opacity: 0.9,
+                }}>
+                <View
+                  style={{
+                    flexDirection: 'column',
+                    alignItems: 'flex-start',
+                    width: '100%',
+                  }}>
+                  <Text
+                    style={{
+                      fontSize: 23,
+                      color: 'red',
+                      fontFamily: colors.font3,
+                    }}>
+                    Deadline
+                  </Text>
+                  <Text
+                    style={{
+                      fontSize: 14,
+                      color: 'white',
+                      fontFamily: colors.font2,
+                    }}>
+                    Time Left to Limit Global Warming to 1.5°C
+                  </Text>
+                  <Text
+                    style={{
+                      fontSize: 24,
+                      color: 'white',
+                      fontFamily: colors.font3,
+                    }}>
+                    <Text style={styles.time}>{`${timeLeft.years || '0'}yrs ${
+                      timeLeft.days || '0'
+                    }d ${timeLeft.hours || '00'}h ${
+                      timeLeft.minutes || '00'
+                    }m ${timeLeft.seconds || '00'}s`}</Text>
+                  </Text>
+                </View>
+              </View>
+            </ImageBackground>
+          </View>
+          <View
+            style={{
+              width: '100%',
               flexDirection: 'row',
               alignItems: 'center',
-              gap: 10,
-              padding: 15,
+              justifyContent: 'space-between',
+              marginVertical: 7,
             }}>
-            <Image
-              source={require('../assets/tip.png')}
-              style={{width: 66, height: 66}}
-            />
             <View
               style={{
+                width: '36%',
+                height: 100,
+                backgroundColor: colors.footprint,
+                borderRadius: 5,
                 flexDirection: 'column',
-                alignItems: 'flex-start',
-                width: '75%',
+                padding: 10,
+                gap: 3,
+                alignItems: 'center',
               }}>
-              <Text
+              <View
                 style={{
-                  fontSize: 20,
-                  color: 'black',
-                  fontFamily: colors.font2,
+                  flexDirection: 'row',
+                  width: '100%',
+                  gap: 3,
+                  height: 24,
                 }}>
-                Tip of the day!
-              </Text>
+                <Image
+                  source={require('../assets/footprint.png')}
+                  style={{width: 20, height: 20}}
+                />
+                <Text
+                  style={{
+                    fontSize: 17,
+                    color: 'black',
+                    fontFamily: colors.font2,
+                  }}>
+                  footprint
+                </Text>
+              </View>
+              <View style={{flexDirection: 'column'}}>
+                <Text
+                  style={{
+                    fontSize: 21,
+                    color: 'black',
+                    fontFamily: colors.font2,
+                  }}>
+                  {val}
+                </Text>
+                <Text
+                  style={{
+                    fontSize: 12,
+                    color: 'black',
+                    fontFamily: colors.font2,
+                    opacity: 0.6,
+                  }}>
+                  kg CO2 e
+                </Text>
+              </View>
+            </View>
+            <TouchableOpacity
+              style={{
+                width: '63%',
+                height: 100,
+                backgroundColor: colors.tip,
+                borderRadius: 5,
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: 3,
+                padding: 10,
+              }}
+              onPress={() => {
+                setShowTipModule(!showTipModule);
+              }}>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  width: '100%',
+                  alignItems: 'center',
+                  gap: 3,
+                  height: 24,
+                }}>
+                <Image
+                  source={require('../assets/tip.png')}
+                  style={{width: 20, height: 20}}
+                />
+                <Text
+                  style={{
+                    fontSize: 17,
+                    color: 'black',
+                    fontFamily: colors.font2,
+                  }}>
+                  Tip of the day
+                </Text>
+              </View>
               <Text
                 style={{
-                  fontSize: 14,
+                  fontSize: 13,
                   color: 'black',
                   fontFamily: colors.font4,
+                  width: '100%',
+                  height: 47,
                 }}>
                 {tip}
               </Text>
-            </View>
+            </TouchableOpacity>
           </View>
           {userData && userData.uid === adminUid && (
             <View
@@ -612,81 +825,21 @@ const Home = () => {
               </ScrollView>
             </View>
           )}
-          <Text
-            style={{
-              fontSize: 16,
-              color: 'black',
-              fontFamily: colors.font2,
-              marginVertical: 5,
-            }}>
-            Eco Chronicles: Today's Topic
-          </Text>
-          {userData && userData.uid === adminUid && (
-            <View
-              style={{
-                width: '100%',
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                marginVertical: 5,
-              }}>
-              <TextInput
-                value={id}
-                style={{
-                  width: '72%',
-                  height: 40,
-                  backgroundColor: '#f0f0f0',
-                  borderRadius: 12,
-                  color: 'black',
-                  fontSize: 16,
-                  fontFamily: colors.font4,
-                  paddingHorizontal: 12,
-                  alignItems: 'center',
-                }}
-                placeholder="Enter video id"
-                placeholderTextColor={'gray'}
-                onChangeText={text => setId(text)}
-              />
-              <TouchableOpacity
-                style={{
-                  width: '27%',
-                  backgroundColor: 'black',
-                  height: 40,
-                  borderRadius: 12,
-                  justifyContent: 'center',
-                  opacity: !idUpdating ? 1.0 : 0.5,
-                }}
-                onPress={!idUpdating && updateVideoId}>
-                <Text
-                  style={{
-                    fontSize: 16,
-                    color: 'white',
-                    textAlign: 'center',
-                    fontFamily: colors.font2,
-                  }}>
-                  Update
-                </Text>
-              </TouchableOpacity>
-            </View>
-          )}
-          <View style={[styles.videoContainer, {marginVertical: 5}]}>
-            {id && <YoutubeIframe height={200} play={false} videoId={id} />}
-          </View>
+          {userData && <WeatherInMumbai userData={userData} />}
           <View
             style={{
               width: '100%',
               padding: 10,
               height: 360,
-              marginVertical: 5,
-              borderRadius: 10,
-              backgroundColor: 'rgba(0,0,0,0.1)',
+              borderRadius: 5,
+              backgroundColor: '#f0f0f9',
             }}>
             <Text
               style={{
-                fontSize: 20,
+                fontSize: 18,
                 color: 'black',
                 fontFamily: colors.font2,
-                paddingBottom: 10,
+                paddingBottom: 7,
               }}>
               Top News
             </Text>
@@ -702,54 +855,66 @@ const Home = () => {
                       width: '100%',
                       backgroundColor: colors.bg,
                       marginVertical: 5,
-                      padding: 10,
-                      borderRadius: 7,
+                      borderRadius: 3,
                       flexDirection: 'row',
                       alignItems: 'center',
                       gap: 10,
                     }}>
                     {article.urlToImage && (
-                      <Image
+                      <ImageBackground
                         source={{uri: article.urlToImage}}
                         style={{
-                          width: 60,
-                          height: 60,
-                          borderRadius: 7,
-                          objectFit: 'contain',
-                        }}
-                      />
+                          width: '100%',
+                          height: 150,
+                          borderRadius: 3,
+                          overflow: 'hidden', // ensure the borderRadius is applied
+                        }}>
+                        <View
+                          style={{
+                            flexDirection: 'column',
+                            alignItems: 'flex-end',
+                            width: '100%',
+                            padding: 10,
+                            justifyContent: 'flex-end',
+                            position: 'absolute',
+                            bottom: 0,
+                            right: 0,
+                          }}>
+                          <Text
+                            style={{
+                              color: 'white',
+                              fontSize: 14,
+                              fontFamily: colors.font2,
+                            }}>
+                            {article.title}
+                          </Text>
+                          <Text
+                            style={{
+                              color: 'white',
+                              fontSize: 10,
+                              fontFamily: colors.font2,
+                              marginBottom: 5,
+                            }}>
+                            {formatDate(article.publishedAt)}
+                          </Text>
+                          <Text
+                            style={{
+                              color: 'black',
+                              fontSize: 10,
+                              fontFamily: colors.font2,
+                              backgroundColor: '#f0f0f0',
+                              padding: 7,
+                              opacity: 0.7,
+                              borderTopLeftRadius: 7,
+                              borderTopRightRadius: 0,
+                              borderBottomLeftRadius: 7,
+                              borderBottomRightRadius: 7,
+                            }}>
+                            {article.description}
+                          </Text>
+                        </View>
+                      </ImageBackground>
                     )}
-                    <View
-                      style={{
-                        flexDirection: 'column',
-                        alignItems: 'flex-start',
-                        width: '80%',
-                      }}>
-                      <Text
-                        style={{
-                          color: 'black',
-                          fontSize: 13,
-                          fontFamily: colors.font2,
-                        }}>
-                        {article.title}
-                      </Text>
-                      <Text
-                        style={{
-                          color: 'gray',
-                          fontSize: 10,
-                          fontFamily: colors.font1,
-                        }}>
-                        {formatDate(article.publishedAt)}
-                      </Text>
-                      <Text
-                        style={{
-                          color: 'black',
-                          fontSize: 11,
-                          fontFamily: colors.font4,
-                        }}>
-                        {article.description}
-                      </Text>
-                    </View>
                   </View>
                 </TouchableOpacity>
               ))}
@@ -759,8 +924,8 @@ const Home = () => {
         </ScrollView>
       </View>
       <View style={{position: 'absolute', bottom: 0, left: 0, right: 0}}>
-          <BottomNavigation />
-        </View>
+        <BottomNavigation />
+      </View>
     </View>
   );
 };
@@ -772,7 +937,7 @@ const styles = StyleSheet.create({
     height: '100%',
     backgroundColor: colors.bg,
     flexDirection: 'column',
-    padding: 12,
+    padding: 10,
   },
   section: {
     width: '100%',

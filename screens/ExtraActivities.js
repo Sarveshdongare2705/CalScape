@@ -22,6 +22,7 @@ import cr from '../assets/extra2.png';
 import extra3 from '../assets/extra3.png';
 import extra4 from '../assets/extra4.png';
 import extra5 from '../assets/extra5.png';
+import { fetchAndUpdateFootprint } from '../utils/footrpintUtils';
 
 const ExtraActivities = () => {
   const route = useRoute();
@@ -129,10 +130,11 @@ const ExtraActivities = () => {
       await recycleDetailsRef.set(data);
       from.trim() === 'signup'
         ? navigation.navigate('Home')
-        : navigation.navigate('Survey', {uid: uid});
+        : navigation.navigate('Survey', {uid: uid , Route : 'Extra Activities Details'});
     } catch (err) {
       console.error(err);
     }
+    fetchAndUpdateFootprint(uid);
     setLoading(false);
   };
 

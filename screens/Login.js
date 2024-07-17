@@ -164,7 +164,7 @@ const Login = () => {
               color: 'black',
               fontSize: 22,
               textAlign: 'center',
-              fontWeight: '700',
+              fontFamily : colors.font2,
             }}>
             Login
           </Text>
@@ -223,7 +223,7 @@ const Login = () => {
             {uploading ? (
               <ActivityIndicator color={'white'} size={'small'} />
             ) : (
-              <Text style={{fontSize: 18, fontWeight: '700', color: 'white'}}>
+              <Text style={{fontSize: 18, color: 'white' , fontFamily : colors.font2,}}>
                 SignIn
               </Text>
             )}
@@ -231,7 +231,7 @@ const Login = () => {
           <View style={{flexDirection: 'row', gap: 5, alignItems: 'center'}}>
             <Text style={styles.txt}>Don't have an account?</Text>
             <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
-              <Text style={[styles.txt, {color: colors.s, fontWeight: '900'}]}>
+              <Text style={[styles.txt, {color: colors.s, fontFamily : colors.font2,}]}>
                 SignUp
               </Text>
             </TouchableOpacity>
@@ -240,7 +240,7 @@ const Login = () => {
             <Text style={styles.txt}>Forgot Password</Text>
             <TouchableOpacity
               onPress={() => navigation.navigate('ForgotPassword')}>
-              <Text style={[styles.txt, {color: colors.s, fontWeight: '900'}]}>
+              <Text style={[styles.txt, {color: colors.s, fontFamily : colors.font2,}]}>
                 Click Here
               </Text>
             </TouchableOpacity>
@@ -298,6 +298,7 @@ const styles = StyleSheet.create({
   inputSection: {
     width: '80%',
     color: 'black',
+    fontFamily : colors.font4
   },
   btn: {
     width: '90%',
@@ -311,23 +312,24 @@ const styles = StyleSheet.create({
   txt: {
     color: 'black',
     fontSize: 13,
+    fontFamily : colors.font4,
   },
   err: {
-    fontWeight: '900',
     opacity: 0.8,
     fontSize: 10,
     color: colors.errorRed,
     textAlign: 'right',
     paddingRight: 10,
+    fontFamily : colors.font2,
   },
   msg: {
     color: 'white',
-    width: '98%',
+    width: '96%',
     height: 40,
     position: 'absolute',
     top: '1%',
-    left: '1%',
-    borderRadius: 10,
+    left: '2%',
+    borderRadius: 3,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -340,5 +342,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     width: '84%',
     height: 23,
+    fontFamily : colors.font2,
   },
 });
