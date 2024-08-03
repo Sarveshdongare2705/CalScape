@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import firestore from '@react-native-firebase/firestore';
 
 export const calculateReduction = async uid => {
@@ -88,6 +89,7 @@ export const calculateReduction = async uid => {
     );
   }
 
+  await AsyncStorage.setItem('reduction' , JSON.stringify(reducedValue))
   return reducedValue;
 };
 
@@ -263,6 +265,7 @@ export const determineLeague = async uid => {
       );
     }
 
+    await AsyncStorage.setItem('league' , JSON.stringify({leagueName, imageUrl, text: leagueText}))
     return {leagueName, imageUrl, text: leagueText};
   } catch (error) {
     console.error('Error determining league:', error);

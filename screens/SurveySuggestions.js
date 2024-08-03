@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useContext, useState} from 'react';
 import {
   View,
   Text,
@@ -12,10 +12,11 @@ import {
   useNavigation,
   useRoute,
 } from '@react-navigation/native';
-import {colors} from '../Colors';
 import firestore from '@react-native-firebase/firestore';
+import {ThemeContext} from '../context/ThemeContext';
 
 const SurveySuggestions = () => {
+  const {theme, isDarkMode} = useContext(ThemeContext);
   const route = useRoute();
   const navigation = useNavigation();
   const {appliance, url} = route.params;
@@ -166,14 +167,21 @@ const SurveySuggestions = () => {
   };
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView style={[styles.container, {backgroundColor: theme.bg}]}>
       <TouchableOpacity
         onPress={() => navigation.goBack()}
         style={{position: 'absolute', top: 0, left: 0}}>
-        <Image
-          source={require('../assets/backButton.png')}
-          style={{width: 27, height: 27}}
-        />
+        {isDarkMode ? (
+          <Image
+            source={require('../assets/backdm.png')}
+            style={{width: 24, height: 24}}
+          />
+        ) : (
+          <Image
+            source={require('../assets/backlm.png')}
+            style={{width: 24, height: 24}}
+          />
+        )}
       </TouchableOpacity>
       <View
         style={{
@@ -192,7 +200,8 @@ const SurveySuggestions = () => {
               : require('../assets/ac.png')
           }
         />
-        <Text style={styles.title}>
+        <Text
+          style={[styles.title, {fontFamily: theme.font2, color: theme.text}]}>
           {showingSuggestions
             ? appliance + ' Suggestions'
             : appliance + ' Survey'}
@@ -201,21 +210,30 @@ const SurveySuggestions = () => {
       {!showingSuggestions &&
         surveys[appliance]?.map((question, index) => (
           <View key={index} style={styles.questionContainer}>
-            <Text style={styles.question}>{question}</Text>
+            <Text
+              style={[
+                styles.question,
+                {fontFamily: theme.font2, color: theme.text},
+              ]}>
+              {question}
+            </Text>
             {options[question]?.map((option, idx) => (
               <TouchableOpacity
                 key={idx}
                 style={[
                   styles.optionContainer,
-                  selectedOptions[question] === option &&
-                    styles.selectedOptionContainer,
+                  selectedOptions[question] === option && {
+                    backgroundColor: theme.bg,
+                  },
+                  {backgroundColor: theme.bg3},
                 ]}
                 onPress={() => handleOptionSelect(question, option)}>
                 <Text
                   style={[
                     styles.option,
-                    selectedOptions[question] === option &&
-                      styles.selectedOption,
+                    selectedOptions[question] === option
+                      ? {fontFamily: theme.font2, color: theme.p}
+                      : {fontFamily: theme.font2, color: theme.text},
                   ]}>
                   {option}
                 </Text>
@@ -242,7 +260,11 @@ const SurveySuggestions = () => {
             }}
             onPress={!laoding && handleGetSuggestions}>
             <Text
-              style={{color: 'black', fontFamily: colors.font2, fontSize: 15}}>
+              style={{
+                color: theme.text,
+                fontFamily: theme.font2,
+                fontSize: 15,
+              }}>
               {laoding ? 'Generating...' : 'Get Suggestions'}
             </Text>
           </TouchableOpacity>
@@ -260,7 +282,11 @@ const SurveySuggestions = () => {
             }}
             onPress={() => setShowingSuggestions(false)}>
             <Text
-              style={{color: 'black', fontFamily: colors.font2, fontSize: 15}}>
+              style={{
+                color: theme.text,
+                fontFamily: theme.font2,
+                fontSize: 15,
+              }}>
               {'Back to Survey'}
             </Text>
           </TouchableOpacity>
@@ -269,8 +295,8 @@ const SurveySuggestions = () => {
       {show5Star && (
         <Text
           style={{
-            color: 'black',
-            fontFamily: colors.font2,
+            color: theme.text,
+            fontFamily: theme.font2,
             fontSize: 14,
             marginVertical: 5,
           }}>
@@ -278,20 +304,19 @@ const SurveySuggestions = () => {
         </Text>
       )}
       {show5Star && (
-        <ScrollView
-          style={{width: '100%'}}
-          nestedScrollEnabled
-          horizontal>
+        <ScrollView style={{width: '100%'}} nestedScrollEnabled horizontal>
           {products.map((product, index) => (
-            <View key={product.id} style={styles.productItem}>
+            <View
+              key={product.id}
+              style={[styles.productItem, {backgroundColor: '#f9f9f9'}]}>
               <Image
                 source={{uri: product.img}}
                 style={{width: '100%', height: 96, objectFit: 'contain'}}
               />
               <Text
                 style={{
-                  color: 'black',
-                  fontFamily: colors.font2,
+                  color: theme.text,
+                  fontFamily: theme.font2,
                   fontSize: 13,
                   height: 15,
                 }}>
@@ -303,11 +328,11 @@ const SurveySuggestions = () => {
                     product.from === 'amazon'
                       ? 'orange'
                       : product.from === 'flipkart'
-                      ? colors.bg2
+                      ? theme.bg2
                       : product.from === 'vijay sales'
-                      ? colors.errorRed
-                      : colors.p,
-                  fontFamily: colors.font2,
+                      ? theme.errorRed
+                      : theme.p,
+                  fontFamily: theme.font2,
                   fontSize: 13,
                   height: 15,
                 }}>
@@ -315,8 +340,8 @@ const SurveySuggestions = () => {
               </Text>
               <Text
                 style={{
-                  color: 'black',
-                  fontFamily: colors.font4,
+                  color: theme.text,
+                  fontFamily: theme.font4,
                   fontSize: 11,
                   height: 40,
                   width: '100%',
@@ -335,8 +360,8 @@ const SurveySuggestions = () => {
                 }}>
                 <Text
                   style={{
-                    color: 'black',
-                    fontFamily: colors.font3,
+                    color: theme.text,
+                    fontFamily: theme.font3,
                     fontSize: 13,
                     height: 40,
                     marginBottom: 4,
@@ -345,8 +370,8 @@ const SurveySuggestions = () => {
                 </Text>
                 <Text
                   style={{
-                    color: colors.successGreen,
-                    fontFamily: colors.font3,
+                    color: theme.successGreen,
+                    fontFamily: theme.font3,
                     fontSize: 13,
                     height: 40,
                     marginBottom: 4,
@@ -368,7 +393,7 @@ const SurveySuggestions = () => {
                 <Text
                   style={{
                     color: 'white',
-                    fontFamily: colors.font2,
+                    fontFamily: theme.font2,
                     fontSize: 12,
                     height: 15,
                   }}>
@@ -382,8 +407,8 @@ const SurveySuggestions = () => {
       {showingSuggestions && !laoding && (
         <Text
           style={{
-            color: 'black',
-            fontFamily: colors.font2,
+            color: theme.text,
+            fontFamily: theme.font2,
             fontSize: 14,
             marginBottom: 7,
           }}>
@@ -394,7 +419,12 @@ const SurveySuggestions = () => {
         <ScrollView style={styles.suggestionContainer}>
           {suggestions &&
             suggestions.map((suggestion, index) => (
-              <View style={styles.suggestionItem} key={index}>
+              <View
+                style={[
+                  styles.suggestionItem,
+                  {backgroundColor: theme.bg3, fontFamily: theme.font4},
+                ]}
+                key={index}>
                 <Image
                   source={require('../assets/suggestions.png')}
                   style={{width: 24, height: 24}}
@@ -417,13 +447,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 12,
-    backgroundColor: 'white',
   },
   title: {
     fontSize: 18,
     marginBottom: 20,
-    fontFamily: colors.font2,
-    color: 'black',
   },
   questionContainer: {
     marginBottom: 30,
@@ -431,51 +458,33 @@ const styles = StyleSheet.create({
   question: {
     fontSize: 14,
     marginBottom: 10,
-    fontFamily: colors.font2,
-    color: 'black',
   },
   optionContainer: {
     padding: 10,
-    backgroundColor: '#f0f0f9',
     borderRadius: 5,
     marginBottom: 10,
   },
-  selectedOptionContainer: {
-    backgroundColor: '#d0d0f9',
-  },
   option: {
     fontSize: 14,
-    fontFamily: colors.font2,
-    color: 'black',
   },
   selectedOption: {
-    color: '#f9f9f0',
+    color: 'blue',
   },
   productItem: {
     width: 180,
     marginBottom: 10,
     padding: 10,
-    backgroundColor: '#f9f9f9',
     borderRadius: 3,
     height: 255,
     flexDirection: 'column',
     marginRight: 7,
-  },
-  suggestionTitle: {
-    fontSize: 14,
-    fontFamily: colors.font2,
-    color: 'black',
-    marginVertical: 5,
   },
   suggestionContainer: {
     marginBottom: 20,
   },
   suggestionItem: {
     fontSize: 14,
-    fontFamily: colors.font4,
-    color: 'black',
     marginVertical: 3,
-    backgroundColor: '#f0f0f9',
     padding: 7,
     borderRadius: 5,
     flexDirection: 'row',

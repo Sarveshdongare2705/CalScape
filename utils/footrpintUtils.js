@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import firestore from '@react-native-firebase/firestore';
 
 const housingEmissionFactors = {
@@ -827,6 +828,8 @@ const calculateExtraDetails = async (uid, extraDetails , month , year , timestam
 };
 
 export const fetchAndUpdateFootprint = async uid => {
+  await AsyncStorage.removeItem('lineChartUpdated');
+  await AsyncStorage.removeItem('barChartUpdated');
     console.log('function called by uid : ',uid)
   // Get current timestamp
   const updateTime = new Date();

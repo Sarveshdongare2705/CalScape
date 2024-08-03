@@ -1,10 +1,12 @@
 import {useNavigation, useRoute} from '@react-navigation/native';
 import {View, Image, TouchableOpacity, StyleSheet, Text} from 'react-native';
 import {colors} from '../Colors';
-import {useEffect, useState} from 'react';
+import {useContext, useEffect, useState} from 'react';
 import firestore from '@react-native-firebase/firestore';
+import { ThemeContext } from '../context/ThemeContext';
 
 const ImageView = () => {
+  const { theme , isDarkMode} = useContext(ThemeContext);
   const route = useRoute();
   const {data, uid , isAnswer ,postTime} = route.params;
   const [userData, setUserData] = useState(null);
@@ -68,7 +70,7 @@ const ImageView = () => {
         </View>
         <TouchableOpacity onPress={() => naviation.goBack()}>
           <Image
-            source={require('../assets/remove.png')}
+            source={isDarkMode ? require('../assets/removedm.png') : require('../assets/removelm.png')}
             style={{width: 27, height: 27}}
           />
         </TouchableOpacity>

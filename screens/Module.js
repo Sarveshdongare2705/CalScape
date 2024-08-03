@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import {
   View,
   ScrollView,
@@ -10,9 +10,10 @@ import {
 import YoutubeIframe from 'react-native-youtube-iframe';
 import BottomNavigation from '../components/BottomNavigation';
 import {useNavigation, useRoute} from '@react-navigation/native';
-import {colors} from '../Colors';
+import {ThemeContext} from '../context/ThemeContext';
 
 const Module = () => {
+  const {theme, isDarkMode} = useContext(ThemeContext);
   const route = useRoute();
   const {
     img1,
@@ -31,7 +32,7 @@ const Module = () => {
   let nextModule = modules[currentIndex + 1]; //next module
   const navigation = useNavigation();
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, {backgroundColor: theme.bg}]}>
       <View
         style={{
           flexDirection: 'row',
@@ -39,15 +40,22 @@ const Module = () => {
           gap: 7,
           marginBottom: 12,
           borderBottomWidth: 0.4,
-          borderBottomColor: 'black',
+          borderBottomColor: theme.bg3,
           paddingBottom: 7,
           justifyContent: 'space-between',
         }}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Image
-            source={require('../assets/backButton.png')}
-            style={{width: 24, height: 24}}
-          />
+          {isDarkMode ? (
+            <Image
+              source={require('../assets/backdm.png')}
+              style={{width: 24, height: 24}}
+            />
+          ) : (
+            <Image
+              source={require('../assets/backlm.png')}
+              style={{width: 24, height: 24}}
+            />
+          )}
         </TouchableOpacity>
         <View style={{flexDirection: 'row', alignItems: 'center', gap: 7}}>
           {currentIndex !== 0 && (
@@ -67,12 +75,12 @@ const Module = () => {
                   modules: modules,
                 })
               }>
-              <Text style={[styles.content, {marginBottom: -3, fontSize: 16}]}>
+              <Text style={[styles.content, {marginBottom: -3, fontSize: 16 , color : theme.text , fontFamily : theme.font4}]}>
                 Prev
               </Text>
             </TouchableOpacity>
           )}
-          {currentIndex !== modules.length-1 && (
+          {currentIndex !== modules.length - 1 && (
             <TouchableOpacity
               onPress={() =>
                 navigation.navigate('Module', {
@@ -89,7 +97,7 @@ const Module = () => {
                   modules: modules,
                 })
               }>
-              <Text style={[styles.content, {marginBottom: -3, fontSize: 16}]}>
+              <Text style={[styles.content, {marginBottom: -3, fontSize: 16 ,  color : theme.text , fontFamily : theme.font4}]}>
                 Next
               </Text>
             </TouchableOpacity>
@@ -97,25 +105,25 @@ const Module = () => {
         </View>
       </View>
       <ScrollView style={{width: '100%', height: '100%'}}>
-        <Text style={styles.heading}>{title}</Text>
+        <Text style={[styles.heading , {color : theme.text , fontFamily : theme.font2}]}>{title}</Text>
         <Image
           source={{
             uri: img1,
           }}
           style={{width: '100%', height: 150, objectFit: 'cover'}}
         />
-        <Text style={styles.content}>{text1 && text1}</Text>
+        <Text style={[styles.content ,  {color : theme.text , fontFamily : theme.font4}]}>{text1 && text1}</Text>
         <View style={styles.videoContainer}>
           <YoutubeIframe height={200} play={false} videoId={videoId1} />
         </View>
-        <Text style={styles.content}>{text2 && text2}</Text>
+        <Text style={[styles.content ,  {color : theme.text , fontFamily : theme.font4}]}>{text2 && text2}</Text>
         {videoId2 && (
           <View style={styles.videoContainer}>
             <YoutubeIframe height={200} play={false} videoId={videoId2} />
           </View>
         )}
-        <Text style={styles.content}>{text3 && text3}</Text>
-        <Text style={styles.content}>{text3 && text4}</Text>
+        <Text style={[styles.content ,  {color : theme.text , fontFamily : theme.font4}]}>{text3 && text3}</Text>
+        <Text style={[styles.content ,  {color : theme.text , fontFamily : theme.font4}]}>{text3 && text4}</Text>
         <View style={{height: 250}}></View>
       </ScrollView>
     </View>
@@ -124,25 +132,18 @@ const Module = () => {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: 'white',
     flex: 1,
     padding: 12,
   },
   title: {
     fontSize: 20,
-    color: 'black',
-    fontFamily: colors.font2,
   },
   heading: {
     fontSize: 17,
-    color: 'black',
-    fontFamily: colors.font2,
     marginBottom: 7,
   },
   content: {
     fontSize: 14,
-    color: 'black',
-    fontFamily: colors.font4,
     marginBottom: 5,
     textAlign: 'justify',
     paddingHorizontal: 3,

@@ -8,17 +8,18 @@ import {
   StyleSheet,
   ToastAndroid,
 } from 'react-native';
-import {colors} from '../Colors';
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
 import storage from '@react-native-firebase/storage';
-import {useEffect, useState} from 'react';
+import {useContext, useEffect, useState} from 'react';
 import ImagePicker from 'react-native-image-crop-picker';
 import {ActivityIndicator} from 'react-native-paper';
 import {formatDistanceToNow} from 'date-fns';
 import {useNavigation} from '@react-navigation/native';
+import { ThemeContext } from '../context/ThemeContext';
 
 const Query = ({query, index, userData, fetchQueries}) => {
+  const {theme , isDarkMode} = useContext(ThemeContext);
   const navigation = useNavigation();
   const [answerModal, showAnswerModal] = useState(false);
   const [answerText, setAnswerText] = useState('');
@@ -128,9 +129,10 @@ const Query = ({query, index, userData, fetchQueries}) => {
         paddingHorizontal: 5,
         alignItems: 'center',
         borderTopWidth: 0.4,
-        borderTopColor: 'gray',
-        borderBottomColor: 'gray',
+        borderTopColor: theme.bg3,
+        borderBottomColor: theme.bg3,
         borderBottomWidth: 0.4,
+        backgroundColor : theme.bg
       }}>
       {deleteQueryModal && (
         <View
@@ -138,9 +140,9 @@ const Query = ({query, index, userData, fetchQueries}) => {
             position: 'absolute',
             width: 200,
             height: 100,
-            backgroundColor: 'white',
+            backgroundColor: theme.bg4,
             zIndex: 999,
-            shadowColor: 'black',
+            shadowcolor : theme.text,
             shadowRadius: 5,
             elevation: 7,
             borderRadius: 12,
@@ -152,7 +154,7 @@ const Query = ({query, index, userData, fetchQueries}) => {
             alignItems: 'flex-start',
             opacity: 0.95,
           }}>
-          <Text style={{color: 'gray', fontSize: 14, fontFamily: colors.font4}}>
+          <Text style={{color: theme.text, fontSize: 14, fontFamily: theme.font4}}>
             Do you want to delete this query?
           </Text>
           <View
@@ -167,8 +169,8 @@ const Query = ({query, index, userData, fetchQueries}) => {
             <TouchableOpacity onPress={() => handleDelete(query.id)}>
               <Text
                 style={{
-                  fontFamily: colors.font2,
-                  color: colors.bg2,
+                  fontFamily: theme.font2,
+                  color: theme.p,
                   fontSize: 16,
                 }}>
                 Yes
@@ -176,7 +178,7 @@ const Query = ({query, index, userData, fetchQueries}) => {
             </TouchableOpacity>
             <TouchableOpacity onPress={() => showDeleteQueryModal(false)}>
               <Text
-                style={{fontFamily: colors.font2, color: 'red', fontSize: 16}}>
+                style={{fontFamily: theme.font2, color: theme.errorRed, fontSize: 16}}>
                 No
               </Text>
             </TouchableOpacity>
@@ -189,9 +191,9 @@ const Query = ({query, index, userData, fetchQueries}) => {
             position: 'absolute',
             width: '96%',
             maxHeight: '96%',
-            backgroundColor: 'white',
+            backgroundColor: theme.bg4,
             zIndex: 999,
-            shadowColor: 'black',
+            shadowcolor : theme.text,
             shadowRadius: 5,
             elevation: 7,
             marginTop: 10,
@@ -203,13 +205,13 @@ const Query = ({query, index, userData, fetchQueries}) => {
               styles.section,
               {
                 borderBottomWidth: 0.4,
-                borderBottomColor: 'lightgray',
+                borderBottomColor: theme.bg3,
                 paddingBottom: 7,
               },
             ]}>
             <TouchableOpacity onPress={() => showAnswerModal(false)}>
               <Image
-                source={require('../assets/remove.png')}
+                source={isDarkMode ? require('../assets/removedm.png') : require('../assets/removelm.png')}
                 style={{width: 27, height: 27}}
               />
             </TouchableOpacity>
@@ -228,7 +230,7 @@ const Query = ({query, index, userData, fetchQueries}) => {
               {answerText.trim() !== '' ? (
                 <TouchableOpacity
                   style={{
-                    backgroundColor: colors.bg2,
+                    backgroundColor: theme.bg2,
                     padding: 5,
                     width: 66,
                     alignItems: 'center',
@@ -238,15 +240,15 @@ const Query = ({query, index, userData, fetchQueries}) => {
                   {uploading ? (
                     <ActivityIndicator
                       size={15}
-                      color="black"
+                      color={theme.text}
                       style={{height: 20}}
                     />
                   ) : (
                     <Text
                       style={{
-                        color: 'black',
+                        color: theme.text,
                         fontSize: 16,
-                        fontFamily: colors.font2,
+                        fontFamily: theme.font2,
                       }}>
                       Reply
                     </Text>
@@ -255,7 +257,7 @@ const Query = ({query, index, userData, fetchQueries}) => {
               ) : (
                 <TouchableOpacity
                   style={{
-                    backgroundColor: colors.bg2,
+                    backgroundColor: theme.bg2,
                     padding: 5,
                     width: 66,
                     alignItems: 'center',
@@ -264,9 +266,9 @@ const Query = ({query, index, userData, fetchQueries}) => {
                   }}>
                   <Text
                     style={{
-                      color: 'black',
+                      color : theme.text,
                       fontSize: 16,
-                      fontFamily: colors.font2,
+                      fontFamily: theme.font2,
                     }}>
                     Reply
                   </Text>
@@ -291,7 +293,7 @@ const Query = ({query, index, userData, fetchQueries}) => {
                   <TouchableOpacity onPress={() => setAnswerImg(null)}>
                     <Text
                       style={{
-                        fontFamily: colors.font2,
+                        fontFamily: theme.font2,
                         fontSize: 14,
                         color: 'red',
                       }}>
@@ -303,13 +305,13 @@ const Query = ({query, index, userData, fetchQueries}) => {
               <TextInput
                 style={{
                   height: 70,
-                  borderColor: 'lightgray',
+                  borderColor: theme.bg3,
                   borderWidth: 0.4,
                   borderRadius: 3,
                   padding: 10,
                   textAlignVertical: 'top',
-                  fontFamily: colors.font4,
-                  color: 'black',
+                  fontFamily: theme.font4,
+                  color : theme.text,
                   marginTop: 5,
                 }}
                 placeholder="Type your query here..."
@@ -345,7 +347,7 @@ const Query = ({query, index, userData, fetchQueries}) => {
                 width: 42,
                 height: 42,
                 borderRadius: 20,
-                borderColor: 'black',
+                bordercolor : theme.text,
                 borderWidth: 1,
               }}
             />
@@ -358,10 +360,10 @@ const Query = ({query, index, userData, fetchQueries}) => {
             }}>
             <Text
               style={{
-                color: 'black',
+                color : theme.text,
                 fontSize: 17,
                 width: '100%',
-                fontFamily: colors.font4,
+                fontFamily: theme.font4,
               }}>
               {query.username}
             </Text>
@@ -370,7 +372,7 @@ const Query = ({query, index, userData, fetchQueries}) => {
                 color: 'gray',
                 fontSize: 13,
                 width: '100%',
-                fontFamily: colors.font1,
+                fontFamily: theme.font1,
               }}>
               {query.postTime}
             </Text>
@@ -380,7 +382,7 @@ const Query = ({query, index, userData, fetchQueries}) => {
               onPress={() => showDeleteQueryModal(!deleteQueryModal)}>
               <Text
                 style={{
-                  fontFamily: colors.font2,
+                  fontFamily: theme.font2,
                   fontSize: 14,
                   color: 'red',
                 }}>
@@ -391,9 +393,9 @@ const Query = ({query, index, userData, fetchQueries}) => {
             <TouchableOpacity onPress={() => showAnswerModal(!answerModal)}>
               <Text
                 style={{
-                  fontFamily: colors.font2,
+                  fontFamily: theme.font2,
                   fontSize: 14,
-                  color: 'black',
+                  color : theme.text,
                 }}>
                 Answer
               </Text>
@@ -411,9 +413,9 @@ const Query = ({query, index, userData, fetchQueries}) => {
         }}>
         <Text
           style={{
-            color: 'black',
+            color : theme.text,
             fontSize: 15,
-            fontFamily: colors.font1,
+            fontFamily: theme.font1,
             maxHeight: 90,
           }}>
           {query.question}
@@ -459,7 +461,7 @@ const Query = ({query, index, userData, fetchQueries}) => {
           <Text
             style={{
               color: 'gray',
-              fontFamily: colors.font2,
+              fontFamily: theme.font2,
               opacity: 0.7,
               fontSize: 14,
             }}>
@@ -470,7 +472,7 @@ const Query = ({query, index, userData, fetchQueries}) => {
             <Text
               style={{
                 color: 'gray',
-                fontFamily: colors.font4,
+                fontFamily: theme.font4,
                 opacity: 0.7,
                 fontSize: 14,
                 borderBottomColor: 'gray',
@@ -499,7 +501,7 @@ const Query = ({query, index, userData, fetchQueries}) => {
                   style={{
                     color: 'gray',
                     fontSize: 15,
-                    fontFamily: colors.font2,
+                    fontFamily: theme.font2,
                   }}>
                   No answers yet.
                 </Text>
@@ -543,7 +545,7 @@ const Query = ({query, index, userData, fetchQueries}) => {
                               width: 32,
                               height: 32,
                               borderRadius: 20,
-                              borderColor: 'black',
+                              bordercolor : theme.text,
                               borderWidth: 1,
                             }}
                           />
@@ -556,10 +558,10 @@ const Query = ({query, index, userData, fetchQueries}) => {
                           }}>
                           <Text
                             style={{
-                              color: 'black',
+                              color : theme.text,
                               fontSize: 14,
                               width: '100%',
-                              fontFamily: colors.font4,
+                              fontFamily: theme.font4,
                             }}>
                             {answer.username}
                           </Text>
@@ -568,7 +570,7 @@ const Query = ({query, index, userData, fetchQueries}) => {
                               color: 'gray',
                               fontSize: 12,
                               width: '100%',
-                              fontFamily: colors.font4,
+                              fontFamily: theme.font4,
                             }}>
                             {relativePostTime}
                           </Text>
@@ -580,7 +582,7 @@ const Query = ({query, index, userData, fetchQueries}) => {
                             }>
                             <Text
                               style={{
-                                fontFamily: colors.font2,
+                                fontFamily: theme.font2,
                                 fontSize: 13,
                                 color: 'orange',
                                 marginLeft: 3,
@@ -593,9 +595,9 @@ const Query = ({query, index, userData, fetchQueries}) => {
                       <Text
                         style={{
                           width: '100%',
-                          fontFamily: colors.font1,
+                          fontFamily: theme.font1,
                           fontSize: 13,
-                          color: 'black',
+                          color : theme.text,
                           marginVertical: 5,
                         }}>
                         {answer.answer}
@@ -637,13 +639,6 @@ const Query = ({query, index, userData, fetchQueries}) => {
 export default Query;
 
 const styles = StyleSheet.create({
-  container: {
-    width: '100%',
-    height: '100%',
-    backgroundColor: colors.bg,
-    flexDirection: 'column',
-    padding: 12,
-  },
   section: {
     width: '100%',
     flexDirection: 'row',
@@ -661,12 +656,9 @@ const styles = StyleSheet.create({
   textInput: {
     width: '90%',
     height: 36,
-    color: 'black',
-    fontFamily: colors.font4,
   },
   queryButton: {
     width: '28%',
-    backgroundColor: colors.bg2,
     paddingHorizontal: 8,
     paddingVertical: 5,
     borderRadius: 7,
@@ -675,8 +667,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   queryButtonText: {
-    fontFamily: colors.font2,
-    color: 'black',
     fontSize: 15,
   },
   bottomNavigation: {

@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useCallback, useContext, useEffect, useState} from 'react';
 import {
   StyleSheet,
   View,
@@ -12,7 +12,6 @@ import {
   RefreshControl,
 } from 'react-native';
 import BottomNavigation from '../components/BottomNavigation';
-import {colors} from '../Colors';
 import {
   useFocusEffect,
   useNavigation,
@@ -25,8 +24,10 @@ import Query from './Query';
 import ImagePicker from 'react-native-image-crop-picker';
 import {ActivityIndicator} from 'react-native-paper';
 import {formatDistanceToNow} from 'date-fns';
+import { ThemeContext } from '../context/ThemeContext';
 
 const Queries = () => {
+  const { theme , isDarkMode } = useContext(ThemeContext);
   const route = useRoute();
   const {currentUser, userData} = route.params;
   const navigation = useNavigation();
@@ -181,20 +182,20 @@ const Queries = () => {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.section}>
-        <View style={styles.searchContainer}>
+    <View style={[styles.container, { backgroundColor: theme.bg }]}>
+      <View style={[styles.section]}>
+        <View style={[styles.searchContainer , {backgroundColor : theme.bg3 }]}>
           <TextInput
             placeholder="Search for a query?"
             placeholderTextColor={'gray'}
-            style={styles.textInput}
+            style={[styles.textInput, { fontFamily: theme.font4, color: theme.text}]}
             onChangeText={text => setSearch(text)}
           />
         </View>
         <TouchableOpacity
-          style={styles.queryButton}
+          style={[styles.queryButton, { backgroundColor: theme.bg2 }]}
           onPress={() => showQueryModal(!queryModal)}>
-          <Text style={styles.queryButtonText}>Query?</Text>
+          <Text style={[styles.queryButtonText, { fontFamily: theme.font2, color: theme.text }]}>Query?</Text>
         </TouchableOpacity>
       </View>
       <View style={styles.main}>
@@ -204,7 +205,7 @@ const Queries = () => {
               position: 'absolute',
               width: '92%',
               height: '62%',
-              backgroundColor: 'white',
+              backgroundColor: theme.bg4,
               zIndex: 999,
               shadowColor: 'black',
               shadowRadius: 5,
@@ -217,15 +218,16 @@ const Queries = () => {
               style={[
                 styles.section,
                 {
-                  borderBottomWidth: 0.4,
-                  borderBottomColor: 'lightgray',
+                  borderBottomWidth: 0.3,
+                  borderBottomColor: theme.bg4,
                   paddingBottom: 7,
                   opacity: uploading ? 0.4 : 1,
+                  
                 },
               ]}>
               <TouchableOpacity onPress={() => showQueryModal(false)}>
                 <Image
-                  source={require('../assets/remove.png')}
+                  source={isDarkMode ? require('../assets/removedm.png') : require('../assets/removelm.png')}
                   style={{width: 27, height: 27}}
                 />
               </TouchableOpacity>
@@ -244,7 +246,7 @@ const Queries = () => {
                 {question.trim() !== '' ? (
                   <TouchableOpacity
                     style={{
-                      backgroundColor: colors.bg2,
+                      backgroundColor: theme.bg2,
                       padding: 5,
                       width: 66,
                       alignItems: 'center',
@@ -254,15 +256,15 @@ const Queries = () => {
                     {uploading ? (
                       <ActivityIndicator
                         size={15}
-                        color="black"
+                        color={theme.text}
                         style={{height: 20}}
                       />
                     ) : (
                       <Text
                         style={{
-                          color: 'black',
                           fontSize: 16,
-                          fontFamily: colors.font2,
+                          fontFamily: theme.font2,
+                          color: theme.text
                         }}>
                         Ask
                       </Text>
@@ -271,7 +273,7 @@ const Queries = () => {
                 ) : (
                   <TouchableOpacity
                     style={{
-                      backgroundColor: colors.bg2,
+                      backgroundColor: theme.bg2,
                       padding: 5,
                       width: 66,
                       alignItems: 'center',
@@ -280,9 +282,9 @@ const Queries = () => {
                     }}>
                     <Text
                       style={{
-                        color: 'black',
                         fontSize: 16,
-                        fontFamily: colors.font2,
+                        fontFamily: theme.font2,
+                        color: theme.text
                       }}>
                       Ask
                     </Text>
@@ -308,12 +310,16 @@ const Queries = () => {
                     }}>
                     <Image
                       source={{uri: queryImg}}
-                      style={{width: '72%', height: 130, objectFit: 'contain'}}
+                      style={{width: 90, height: 90, marginBottom: 10}}
                     />
-                    <TouchableOpacity onPress={() => setQueryImg(null)}>
+                    <TouchableOpacity
+                      onPress={() => setQueryImg(null)}
+                      style={{
+                        marginBottom: 10,
+                      }}>
                       <Text
                         style={{
-                          fontFamily: colors.font2,
+                          fontFamily: theme.font2,
                           fontSize: 14,
                           color: 'red',
                         }}>
@@ -325,13 +331,13 @@ const Queries = () => {
                 <TextInput
                   style={{
                     height: 130,
-                    borderColor: 'lightgray',
+                    borderColor: theme.bg3,
                     borderWidth: 0.4,
                     borderRadius: 3,
                     padding: 10,
                     textAlignVertical: 'top',
-                    fontFamily: colors.font4,
-                    color: 'black',
+                    fontFamily: theme.font4,
+                    color: theme.text,
                     marginTop: 10,
                   }}
                   placeholder="Type your query here..."
@@ -348,7 +354,7 @@ const Queries = () => {
         {searchLoading ? (
           <ActivityIndicator
             size={16}
-            color={'black'}
+            color={theme.text}
             style={{position: 'absolute', top: 5, left: 5}}
           />
         ) : (
@@ -358,12 +364,12 @@ const Queries = () => {
               <RefreshControl
                 refreshing={refreshing}
                 onRefresh={onRefresh}
-                colors={[colors.p, colors.s]}
+                theme={[theme.p, theme.s]}
               />
             }>
             {loading ? (
               <ActivityIndicator
-                color={'black'}
+                color={theme.text}
                 size={18}
                 style={{position: 'absolute', top: 3, left: 3}}
               />
@@ -382,8 +388,8 @@ const Queries = () => {
         )}
       </View>
       <View style={{position: 'absolute', bottom: 0, left: 0, right: 0}}>
-          <BottomNavigation />
-        </View>
+        <BottomNavigation />
+      </View>
     </View>
   );
 };
@@ -394,7 +400,6 @@ const styles = StyleSheet.create({
   container: {
     width: '100%',
     height: '100%',
-    backgroundColor: colors.bg,
     flexDirection: 'column',
     padding: 12,
   },
@@ -415,12 +420,9 @@ const styles = StyleSheet.create({
   textInput: {
     width: '90%',
     height: 36,
-    color: 'black',
-    fontFamily: colors.font4,
   },
   queryButton: {
     width: '28%',
-    backgroundColor: colors.bg2,
     paddingHorizontal: 8,
     paddingVertical: 5,
     borderRadius: 7,
@@ -429,8 +431,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   queryButtonText: {
-    fontFamily: colors.font2,
-    color: 'black',
     fontSize: 15,
   },
   bottomNavigation: {

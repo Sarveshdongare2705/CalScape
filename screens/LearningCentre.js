@@ -1,4 +1,10 @@
-import React, {useCallback, useEffect, useReducer, useState} from 'react';
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useReducer,
+  useState,
+} from 'react';
 import {
   View,
   ScrollView,
@@ -16,12 +22,13 @@ import {
   useNavigation,
   useRoute,
 } from '@react-navigation/native';
-import {colors} from '../Colors';
 import QuizScreen from './QuizScreen';
 import firestore from '@react-native-firebase/firestore';
 import Courses from './Courses';
+import {ThemeContext} from '../context/ThemeContext';
 
 const LearningCentre = () => {
+  const {theme, isDarkMode} = useContext(ThemeContext);
   const route = useRoute();
   const {userData} = route.params;
   const navigation = useNavigation();
@@ -58,7 +65,7 @@ const LearningCentre = () => {
   );
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, {backgroundColor: theme.bg}]}>
       <View
         style={{
           flexDirection: 'row',
@@ -69,19 +76,26 @@ const LearningCentre = () => {
           height: 34,
         }}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Image
-            source={require('../assets/backButton.png')}
-            style={{width: 24, height: 24}}
-          />
+          {isDarkMode ? (
+            <Image
+              source={require('../assets/backdm.png')}
+              style={{width: 24, height: 24}}
+            />
+          ) : (
+            <Image
+              source={require('../assets/backlm.png')}
+              style={{width: 24, height: 24}}
+            />
+          )}
         </TouchableOpacity>
-        <Text style={styles.title}>Learning Centre</Text>
+        <Text style={[styles.title , {color : theme.text , fontFamily : theme.font2}]}>Learning Centre</Text>
       </View>
       <View
         style={{
           width: '100%',
           flexDirection: 'row',
           alignItems: 'center',
-          backgroundColor: 'white',
+          backgroundColor: theme.bg,
           justifyContent: 'space-between',
           marginBottom: 12,
         }}>
@@ -89,7 +103,7 @@ const LearningCentre = () => {
           style={{
             width: '33%',
             borderBottomWidth: 2,
-            borderBottomColor: showModules ? colors.p : 'lightgray',
+            borderBottomColor: showModules ? theme.footprint : 'gray',
             paddingBottom: 7,
           }}
           onPress={() => {
@@ -100,9 +114,9 @@ const LearningCentre = () => {
           <Text
             style={{
               fontSize: 16,
-              fontFamily: colors.font2,
+              fontFamily: theme.font2,
               textAlign: 'center',
-              color: showModules ? colors.p : 'black',
+              color: showModules ? theme.footprint : 'gray',
             }}>
             Modules
           </Text>
@@ -111,7 +125,7 @@ const LearningCentre = () => {
           style={{
             width: '33%',
             borderBottomWidth: 2,
-            borderBottomColor: showCourses ? colors.p : 'lightgray',
+            borderBottomColor: showCourses ? theme.footprint : 'gray',
             paddingBottom: 7,
           }}
           onPress={() => {
@@ -122,9 +136,9 @@ const LearningCentre = () => {
           <Text
             style={{
               fontSize: 16,
-              fontFamily: colors.font2,
+              fontFamily: theme.font2,
               textAlign: 'center',
-              color: showCourses ? colors.p : 'black',
+              color: showCourses ? theme.footprint : 'gray',
             }}>
             Courses
           </Text>
@@ -133,7 +147,7 @@ const LearningCentre = () => {
           style={{
             width: '33%',
             borderBottomWidth: 2,
-            borderBottomColor: showQuiz ? colors.p : 'lightgray',
+            borderBottomColor: showQuiz ? theme.footprint : 'gray',
             paddingBottom: 7,
           }}
           onPress={() => {
@@ -144,16 +158,17 @@ const LearningCentre = () => {
           <Text
             style={{
               fontSize: 16,
-              fontFamily: colors.font2,
+              fontFamily: theme.font2,
               textAlign: 'center',
-              color: showQuiz ? colors.p : 'black',
+              color: showQuiz ? theme.footprint : 'gray',
             }}>
             Today's Quiz
           </Text>
         </TouchableOpacity>
       </View>
       <ScrollView style={{width: '100%'}}>
-        {showModules && !showCourses && 
+        {showModules &&
+          !showCourses &&
           !showQuiz &&
           chapters &&
           chapters.map((module, index) => (
@@ -178,60 +193,41 @@ const LearningCentre = () => {
               <ImageBackground
                 source={{uri: module.img1}}
                 style={{width: '100%', height: 120, objectFit: 'contain'}}>
-                <Text style={styles.heading}>{module.title}</Text>
+                <Text style={[styles.heading , {fontFamily : theme.font2 , color :'white'}]}>{module.title}</Text>
               </ImageBackground>
             </TouchableOpacity>
           ))}
-        {!showModules && showCourses && !showQuiz && <Courses userData={userData} />}
-        {!showModules && !showCourses && showQuiz && <QuizScreen userData={userData} />}
+        {!showModules && showCourses && !showQuiz && (
+          <Courses userData={userData} />
+        )}
+        {!showModules && !showCourses && showQuiz && (
+          <QuizScreen userData={userData} />
+        )}
         <View style={{height: 200}}></View>
       </ScrollView>
       <View style={{position: 'absolute', bottom: 0, left: 0, right: 0}}>
-          <BottomNavigation />
-        </View>
+        <BottomNavigation />
+      </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: 'white',
     flex: 1,
     padding: 12,
   },
   title: {
     fontSize: 20,
-    color: 'black',
-    fontFamily: colors.font2,
   },
   heading: {
     fontSize: 15,
-    color: 'white',
-    fontFamily: colors.font2,
     marginBottom: 7,
     position: 'absolute',
     bottom: 7,
     left: 0,
     width: '84%',
     marginHorizontal: 10,
-  },
-  icon: {
-    position: 'absolute',
-    bottom: 5,
-    right: 7,
-    width: 27,
-    height: 27,
-    backgroundColor: 'lightgray',
-    padding: 5,
-    borderRadius: 100,
-  },
-  content: {
-    fontSize: 14,
-    color: 'black',
-    fontFamily: colors.font4,
-    marginBottom: 5,
-    textAlign: 'justify',
-    paddingHorizontal: 3,
   },
 });
 

@@ -1,12 +1,14 @@
 import {View, Text, StyleSheet, TouchableOpacity, Image} from 'react-native';
-import React, {useCallback, useState} from 'react';
+import React, {useCallback, useContext, useState} from 'react';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {colors} from '../Colors';
 
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
+import { ThemeContext } from '../context/ThemeContext';
 
 const BottomNavigation = () => {
+  const { theme }  = useContext(ThemeContext);
   const navigation = useNavigation();
   const [currentUser, setCurrentUser] = useState(null);
   const [userData, setUserData] = useState(null);
@@ -62,7 +64,7 @@ const BottomNavigation = () => {
 
   if (userData && userData.uid === adminUid) {
     return (
-      <View style={styles.container}>
+      <View style={[styles.container , {    backgroundColor: theme.bg2}]}>
         <TouchableOpacity
           style={[styles.button, {marginRight: -5}]}
           onPress={() => navigation.navigate('Home')}>
@@ -108,7 +110,7 @@ const BottomNavigation = () => {
     );
   } else {
     return (
-      <View style={styles.container}>
+      <View style={[styles.container , {    backgroundColor: theme.bg2,}]}>
         <TouchableOpacity
           style={[styles.button, {marginRight: -5}]}
           onPress={() => navigation.navigate('Home')}>
@@ -171,12 +173,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 5,
     paddingVertical: 7,
-    backgroundColor: colors.bg2,
     width: '100%',
     alignItems: 'center',
-    borderRadius: 3,
-    borderTopLeftRadius: 12,
-    borderTopRightRadius: 12,
   },
   button: {
     flex: 1,

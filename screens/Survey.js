@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useCallback, useContext, useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -7,7 +7,6 @@ import {
   ScrollView,
   Image,
 } from 'react-native';
-import {colors} from '../Colors';
 import {
   useFocusEffect,
   useNavigation,
@@ -17,8 +16,10 @@ import BottomNavigation from '../components/BottomNavigation';
 import {ActivityIndicator} from 'react-native-paper';
 import firestore from '@react-native-firebase/firestore';
 import {fetchAndUpdateFootprint} from '../utils/footrpintUtils';
+import { ThemeContext } from '../context/ThemeContext';
 
 const Survey = () => {
+  const {theme , isDarkMode} = useContext(ThemeContext);
   const route = useRoute();
   const {uid, Route} = route.params;
   console.log('welcome to survey page : ', uid, Route);
@@ -114,7 +115,7 @@ const Survey = () => {
   return (
     <View style={styles.container}>
       {showMsg && Route && (
-        <View style={[styles.msg, {backgroundColor: colors.bg2, zIndex: 999}]}>
+        <View style={[styles.msg, {backgroundColor: theme.bg2, zIndex: 999}]}>
           <Text style={styles.msgtxt}>{Route + ' updated !'}</Text>
         </View>
       )}
@@ -143,7 +144,7 @@ const Survey = () => {
                 color: 'black',
                 fontSize: 22,
                 textAlign: 'center',
-                fontFamily: colors.font2,
+                fontFamily: theme.font2,
               }}>
               Update Your Data
             </Text>
@@ -152,7 +153,7 @@ const Survey = () => {
                 color: 'gray',
                 fontSize: 14,
                 textAlign: 'center',
-                fontFamily: colors.font4,
+                fontFamily: theme.font4,
                 width: '90%',
               }}>
               Update your details to calculate your latest carbon footprint
@@ -186,7 +187,7 @@ const Survey = () => {
                 style={{
                   color: 'black',
                   fontSize: 17,
-                  fontFamily: colors.font4,
+                  fontFamily: theme.font4,
                 }}>
                 Basic Details
               </Text>
@@ -219,7 +220,7 @@ const Survey = () => {
                 style={{
                   color: 'black',
                   fontSize: 17,
-                  fontFamily: colors.font4,
+                  fontFamily: theme.font4,
                 }}>
                 Travel Details
               </Text>
@@ -252,7 +253,7 @@ const Survey = () => {
                 style={{
                   color: 'black',
                   fontSize: 17,
-                  fontFamily: colors.font4,
+                  fontFamily: theme.font4,
                 }}>
                 Electricity Details
               </Text>
@@ -285,7 +286,7 @@ const Survey = () => {
                 style={{
                   color: 'black',
                   fontSize: 17,
-                  fontFamily: colors.font4,
+                  fontFamily: theme.font4,
                 }}>
                 Fuel Energy Details
               </Text>
@@ -318,7 +319,7 @@ const Survey = () => {
                 style={{
                   color: 'black',
                   fontSize: 17,
-                  fontFamily: colors.font4,
+                  fontFamily: theme.font4,
                 }}>
                 Diet Details
               </Text>
@@ -351,7 +352,7 @@ const Survey = () => {
                 style={{
                   color: 'black',
                   fontSize: 17,
-                  fontFamily: colors.font4,
+                  fontFamily: theme.font4,
                 }}>
                 Clothing and Shopping
               </Text>
@@ -384,7 +385,7 @@ const Survey = () => {
                 style={{
                   color: 'black',
                   fontSize: 17,
-                  fontFamily: colors.font4,
+                  fontFamily: theme.font4,
                 }}>
                 Waste Management
               </Text>
@@ -417,7 +418,7 @@ const Survey = () => {
                 style={{
                   color: 'black',
                   fontSize: 17,
-                  fontFamily: colors.font4,
+                  fontFamily: theme.font4,
                 }}>
                 Extra Activities
               </Text>
@@ -450,7 +451,6 @@ const styles = StyleSheet.create({
   container: {
     width: '100%',
     height: '100%',
-    backgroundColor: colors.bg,
     flexDirection: 'column',
   },
   section: {
@@ -473,24 +473,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 5,
     marginRight: 10,
-    shadowColor: 'gray',
-    shadowOffset: {width: 2, height: 20},
-    shadowOpacity: 0.2,
-    shadowRadius: 20,
-    elevation: 5,
-    backgroundColor: colors.bg,
     borderRadius: 12,
     marginLeft: 5,
     marginTop: 12,
     justifyContent: 'space-between',
   },
   text: {
-    color: 'black',
     height: 30,
     width: '100%',
     textAlign: 'center',
     fontSize: 16,
-    fontFamily: colors.font2,
     opacity: 0.3,
   },
   image: {
@@ -505,7 +497,6 @@ const styles = StyleSheet.create({
   },
   btn: {
     width: '70%',
-    backgroundColor: '#78C8CC',
     height: 40,
     borderRadius: 7,
     alignItems: 'center',
@@ -513,7 +504,6 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   msg: {
-    color: 'white',
     width: '30%',
     height: 75,
     position: 'absolute',
@@ -534,7 +524,6 @@ const styles = StyleSheet.create({
     color: 'black',
     fontSize: 12,
     width: '100%',
-    fontFamily: colors.font4,
   },
   item: {
     width: '100%',
@@ -545,6 +534,5 @@ const styles = StyleSheet.create({
     borderRadius: 3,
     justifyContent: 'space-between',
     marginVertical: 5,
-    backgroundColor: '#f0f0f9',
   },
 });

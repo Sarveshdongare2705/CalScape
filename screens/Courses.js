@@ -1,5 +1,5 @@
 import {useFocusEffect} from '@react-navigation/native';
-import React, {useCallback, useState} from 'react';
+import React, {useCallback, useContext, useState} from 'react';
 import firestore from '@react-native-firebase/firestore';
 import {
   View,
@@ -10,9 +10,11 @@ import {
   Image,
   Linking,
 } from 'react-native';
-import {colors} from '../Colors';
+import {theme} from '../theme';
+import { ThemeContext } from '../context/ThemeContext';
 
 const Courses = ({userData}) => {
+  const {theme , isDarkMode} = useContext(ThemeContext);
   const [courses, setCourses] = useState(null);
   const [loading, setLoading] = useState(false);
   //fetchAllCourses
@@ -40,7 +42,7 @@ const Courses = ({userData}) => {
     }, []),
   );
   return (
-    <View style={{width: '100%'}}>
+    <View style={{width: '100%' , backgroundColor : theme.bg}}>
       {courses &&
         courses.map(course => (
           <View
@@ -48,7 +50,7 @@ const Courses = ({userData}) => {
             style={{
               width: '100%',
               minHeight: 235,
-              backgroundColor: '#f0f0f0',
+              backgroundColor: theme.bg3,
               borderRadius: 12,
               flexDirection: 'column',
               alignItems: 'flex-start',
@@ -80,8 +82,8 @@ const Courses = ({userData}) => {
                 }}>
                 <Text
                   style={{
-                    fontFamily: colors.font2,
-                    color: 'black',
+                    fontFamily: theme.font2,
+                    color : theme.text,
                     width: '100%',
                     fontSize: 14,
                   }}>
@@ -90,10 +92,10 @@ const Courses = ({userData}) => {
                 <Text
                   style={{
                     width: 15,
-                    fontFamily: colors.font3,
-                    color: 'black',
+                    fontFamily: theme.font3,
+                    color : theme.text,
                     width: '100%',
-                    color: colors.p,
+                    color: theme.p,
                   }}>
                   {course.from}
                 </Text>
@@ -116,8 +118,8 @@ const Courses = ({userData}) => {
                   <Text
                     style={{
                       width: 16,
-                      fontFamily: colors.font4,
-                      color: 'black',
+                      fontFamily: theme.font4,
+                      color : theme.text,
                       width: '100%',
                     }}>
                     {course.instructor}
@@ -127,8 +129,8 @@ const Courses = ({userData}) => {
             </View>
             <Text
               style={{
-                fontFamily: colors.font4,
-                color: 'black',
+                fontFamily: theme.font4,
+                color: theme.text,
                 width: '100%',
                 fontSize: 13,
                 marginTop: 5,
@@ -144,8 +146,8 @@ const Courses = ({userData}) => {
               }}>
               <Text
                 style={{
-                  fontFamily: colors.font3,
-                  color: colors.errorRed,
+                  fontFamily: theme.font3,
+                  color: theme.errorRed,
                   fontSize: 13,
                   marginTop: 3,
                   marginBottom: 7,
@@ -154,8 +156,8 @@ const Courses = ({userData}) => {
               </Text>
               <Text
                 style={{
-                  fontFamily: colors.font3,
-                  color: colors.successGreen,
+                  fontFamily: theme.font3,
+                  color: theme.successGreen,
                   fontSize: 13,
                   marginTop: 3,
                   marginBottom: 7,
@@ -167,7 +169,7 @@ const Courses = ({userData}) => {
               style={{
                 width: '100%',
                 borderRadius: 12,
-                backgroundColor: 'black',
+                backgroundColor : theme.bg,
                 height: 36,
                 justifyContent: 'center',
                 alignItems: 'center',
@@ -175,8 +177,8 @@ const Courses = ({userData}) => {
               onPress={() => Linking.openURL(`${course.link}`)}>
               <Text
                 style={{
-                  fontFamily: colors.font3,
-                  color: 'white',
+                  fontFamily: theme.font3,
+                  color: theme.text,
                   fontSize: 14,
                 }}>
                 {'Go to Course'}

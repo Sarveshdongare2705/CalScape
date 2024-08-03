@@ -1,19 +1,20 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useCallback, useContext, useEffect, useState} from 'react';
 import {Text, View, TouchableOpacity, FlatList, Image} from 'react-native';
 import firestore from '@react-native-firebase/firestore';
-import auth from '@react-native-firebase/auth'; // Import Firebase Auth
-import {colors} from '../Colors';
+import auth from '@react-native-firebase/auth'; 
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {ActivityIndicator} from 'react-native-paper';
+import { ThemeContext } from '../context/ThemeContext';
 
 const QuizScreen = ({userData}) => {
+  const {theme , isDarkMode} = useContext(ThemeContext);
   const navigation = useNavigation();
   const [quiz, setQuiz] = useState(null);
   const [userAnswers, setUserAnswers] = useState([]);
   const [isAnswered, setIsAnswered] = useState(false);
-  const [score, setScore] = useState(null); // State variable for the score
-  const [submissionTime, setSubmissionTime] = useState(null); // State variable for the submission time
-  const [allScores, setAllScores] = useState([]); // State variable for all user scores
+  const [score, setScore] = useState(null); 
+  const [submissionTime, setSubmissionTime] = useState(null); 
+  const [allScores, setAllScores] = useState([]);
   const [submitted, setSubmitted] = useState(false);
   const [noQuiz, setNoQuiz] = useState(false);
   const [quizLoading, setQuizLoading] = useState(false);
@@ -216,19 +217,17 @@ const QuizScreen = ({userData}) => {
         style={{
           padding: 10,
           marginVertical: 5,
-          borderWidth: 1,
-          borderColor: '#ccc',
-          borderRadius: 12,
+          borderRadius: 7,
           backgroundColor:
             submitted && question.correctOptionIndex === optionIndex
-              ? colors.successGreen
+              ? theme.successGreen
               : !submitted && userAnswers[questionIndex] === optionIndex
-              ? colors.bg2
+              ? theme.bg3
               : submitted && userAnswers[questionIndex] === optionIndex
-              ? colors.errorRed
-              : '#f0f0f0', // Change background color based on state
+              ? theme.errorRed
+              : theme.bg, 
         }}>
-        <Text style={{color: 'black', fontFamily: colors.font4, fontSize: 16}}>
+        <Text style={{color : theme.text , fontFamily: theme.font4, fontSize: 16}}>
           {option}
         </Text>
       </TouchableOpacity>
@@ -236,7 +235,7 @@ const QuizScreen = ({userData}) => {
   };
 
   if (quizLoading) {
-    return <ActivityIndicator size={25} color="black" />;
+    return <ActivityIndicator size={25} color={theme.text} />;
   } else {
     if (!quiz) {
       return (
@@ -245,9 +244,9 @@ const QuizScreen = ({userData}) => {
             style={{
               fontSize: 20,
               marginBottom: 20,
-              color: 'black',
-              fontFamily: colors.font2,
-              backgroundColor: 'lightgray',
+              color : theme.text ,
+              fontFamily: theme.font2,
+              backgroundColor: theme.bg3,
               padding: 15,
               borderRadius: 12,
             }}>
@@ -259,7 +258,7 @@ const QuizScreen = ({userData}) => {
                 width: '100%',
                 height: 36,
                 borderRadius: 15,
-                backgroundColor: 'black',
+                backgroundColor: theme.bg3,
                 alignItems: 'center',
                 justifyContent: 'center',
               }}
@@ -268,9 +267,9 @@ const QuizScreen = ({userData}) => {
               }>
               <Text
                 style={{
-                  color: 'white',
+                  color : theme.text,
                   fontSize: 16,
-                  fontFamily: colors.font2,
+                  fontFamily: theme.font2,
                   textAlign: 'center',
                 }}>
                 Add a Quiz
@@ -285,7 +284,7 @@ const QuizScreen = ({userData}) => {
           style={{
             flex: 1,
             justifyContent: 'center',
-            backgroundColor: 'lightgray',
+            backgroundColor: theme.bg3,
             padding: 15,
             borderRadius: 12,
           }}>
@@ -294,8 +293,8 @@ const QuizScreen = ({userData}) => {
               <Text
                 style={{
                   fontSize: 24,
-                  color: 'black',
-                  fontFamily: colors.font3,
+                  color : theme.text ,
+                  fontFamily: theme.font3,
                   textAlign: 'center',
                 }}>
                 Your Score: {score}/{quiz.quizQuestions && quiz.quizQuestions.length}
@@ -303,8 +302,8 @@ const QuizScreen = ({userData}) => {
               <Text
                 style={{
                   fontSize: 16,
-                  color: 'black',
-                  fontFamily: colors.font2,
+                  color : theme.text ,
+                  fontFamily: theme.font2,
                   textAlign: 'center',
                 }}>
                 Submitted At:{' '}
@@ -316,8 +315,8 @@ const QuizScreen = ({userData}) => {
             style={{
               fontSize: 18,
               marginBottom: 20,
-              color: 'black',
-              fontFamily: colors.font2,
+              color : theme.text ,
+              fontFamily: theme.font2,
             }}>
             {quiz.quizTitle}
           </Text>
@@ -328,8 +327,8 @@ const QuizScreen = ({userData}) => {
                   style={{
                     fontSize: 16,
                     marginBottom: 10,
-                    color: 'black',
-                    fontFamily: colors.font2,
+                    color : theme.text ,
+                    fontFamily: theme.font2,
                   }}>
                   {question.questionText}
                 </Text>
@@ -345,16 +344,16 @@ const QuizScreen = ({userData}) => {
                   width: '100%',
                   height: 36,
                   borderRadius: 15,
-                  backgroundColor: 'black',
+                  backgroundColor : theme.bg ,
                   alignItems: 'center',
                   justifyContent: 'center',
                 }}
                 onPress={handleAnswerSubmit}>
                 <Text
                   style={{
-                    color: 'white',
+                    color: theme.text,
                     fontSize: 16,
-                    fontFamily: colors.font2,
+                    fontFamily: theme.font2,
                     textAlign: 'center',
                   }}>
                   Submit
@@ -366,7 +365,7 @@ const QuizScreen = ({userData}) => {
                   width: '100%',
                   height: 36,
                   borderRadius: 15,
-                  backgroundColor: 'black',
+                  backgroundColor : theme.bg ,
                   alignItems: 'center',
                   justifyContent: 'center',
                   opacity: 0.7,
@@ -375,7 +374,7 @@ const QuizScreen = ({userData}) => {
                   style={{
                     color: 'white',
                     fontSize: 16,
-                    fontFamily: colors.font2,
+                    fontFamily: theme.font2,
                     textAlign: 'center',
                   }}>
                   Submit
@@ -390,8 +389,8 @@ const QuizScreen = ({userData}) => {
                 style={{
                   fontSize: 20,
                   marginBottom: 12,
-                  color: 'black',
-                  fontFamily: colors.font3,
+                  color : theme.text ,
+                  fontFamily: theme.font3,
                   textAlign: 'center',
                 }}>
                 {`All Scores ( ${allScores.length} )`}
@@ -402,7 +401,7 @@ const QuizScreen = ({userData}) => {
                     style={{
                       width: '100%',
                       height: 66,
-                      backgroundColor: 'white',
+                      backgroundColor: theme.bg4,
                       borderRadius: 12,
                       flexDirection: 'row',
                       alignItems: 'center',
@@ -430,8 +429,8 @@ const QuizScreen = ({userData}) => {
                         <Text
                           style={{
                             fontSize: 17,
-                            color: 'black',
-                            fontFamily: colors.font2,
+                            color : theme.text ,
+                            fontFamily: theme.font2,
                             textAlign: 'center',
                             height: 25,
                           }}>
@@ -441,8 +440,8 @@ const QuizScreen = ({userData}) => {
                           style={{
                             fontSize: 14,
                             marginBottom: 10,
-                            color: 'black',
-                            fontFamily: colors.font4,
+                            color : theme.text ,
+                            fontFamily: theme.font4,
                             textAlign: 'center',
                             height: 15,
                           }}>
@@ -454,8 +453,8 @@ const QuizScreen = ({userData}) => {
                     <Text
                       style={{
                         fontSize: 18,
-                        color: 'black',
-                        fontFamily: colors.font3,
+                        color : theme.text ,
+                        fontFamily: theme.font3,
                         textAlign: 'center',
                         width: '22%',
                       }}>
@@ -472,8 +471,8 @@ const QuizScreen = ({userData}) => {
                 style={{
                   fontSize: 20,
                   marginBottom: 12,
-                  color: 'black',
-                  fontFamily: colors.font3,
+                  color : theme.text ,
+                  fontFamily: theme.font3,
                   textAlign: 'center',
                 }}>
                 {`No respones till now`}
