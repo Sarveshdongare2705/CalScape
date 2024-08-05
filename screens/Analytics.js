@@ -291,7 +291,7 @@ const Analytics = () => {
         }
       });
       return unsubscribe;
-    }, []),
+    }, [userData && userData.uid]),
   );
 
   const handleMonthChange = async month => {

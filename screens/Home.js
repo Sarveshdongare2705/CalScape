@@ -614,7 +614,7 @@ const Home = () => {
             },
           ]}>
           <TouchableOpacity
-            onPress={() => navigation.navigate('Profile', {uid: userData.uid})}>
+            onPress={() => userData && navigation.navigate('Profile', {uid: userData.uid})}>
             <View
               style={{
                 flexDirection: 'row',
