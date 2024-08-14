@@ -308,7 +308,7 @@ const SurveySuggestions = () => {
           {products.map((product, index) => (
             <View
               key={product.id}
-              style={[styles.productItem, {backgroundColor: '#f9f9f9'}]}>
+              style={[styles.productItem, {backgroundColor: theme.bg4}]}>
               <Image
                 source={{uri: product.img}}
                 style={{width: '100%', height: 96, objectFit: 'contain'}}
@@ -431,7 +431,7 @@ const SurveySuggestions = () => {
                 />
                 <Text
                   key={index}
-                  style={[styles.suggestionItem, {width: '90%'}]}>
+                  style={[styles.suggestionItem, {width: '90%' , color : theme.text , fontFamily : theme.font4}]}>
                   {suggestion}
                 </Text>
               </View>

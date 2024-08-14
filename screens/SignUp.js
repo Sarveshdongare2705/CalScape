@@ -13,8 +13,8 @@ import {
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
-import {GoogleSignin} from '@react-native-google-signin/google-signin';
 import {ThemeContext} from '../context/ThemeContext';
+import Video from 'react-native-video';
 
 const SignUp = () => {
   const {theme, isDarkMode} = useContext(ThemeContext);
@@ -32,14 +32,6 @@ const SignUp = () => {
   const [err, setErr] = useState(false);
   const [errMsg, setErrMsg] = useState('');
   const navigation = useNavigation();
-
-  //google part
-  useEffect(() => {
-    GoogleSignin.configure({
-      webClientId:
-        '1068692630715-ljqk4421kuak2aoeebltf34tihd0m4g7.apps.googleusercontent.com',
-    });
-  }, []);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -130,12 +122,8 @@ const SignUp = () => {
   };
 
   return (
-    <View style={[styles.container, {backgroundColor: theme.bg}]}>
-      {isDarkMode ? (
-        <StatusBar backgroundColor={theme.bg} barStyle={'light-content'} />
-      ) : (
-        <StatusBar backgroundColor={theme.bg} barStyle={'dark-content'} />
-      )}
+    <View style={[styles.container, {backgroundColor: 'white'}]}>
+      {<StatusBar backgroundColor={'white'} barStyle={'light-content'} />}
       {err && (
         <View style={[styles.msg, {backgroundColor: theme.errorRed}]}>
           <Text style={[styles.msgtxt, {fontFamily: theme.font2}]}>
@@ -143,12 +131,8 @@ const SignUp = () => {
           </Text>
           <TouchableOpacity onPress={() => setErr(false)}>
             <Image
-              source={
-                isDarkMode
-                  ? require('../assets/removedm.png')
-                  : require('../assets/removelm.png')
-              }
-              style={{width: 24, height: 24}}
+              source={require('../assets/removelm.png')}
+              style={{width: 27, height: 27}}
             />
           </TouchableOpacity>
         </View>
@@ -161,10 +145,19 @@ const SignUp = () => {
         </View>
       )}
       <View style={styles.section1}>
-        <View style={{width: '100%'}}>
+        <View style={{width: '100%', alignItems: 'center'}}>
+          <Video
+            source={require('../assets/signupVideo.mp4')}
+            style={styles.video}
+            muted={true}
+            repeat={true}
+            resizeMode={'cover'}
+            rate={1.0}
+            ignoreSilentSwitch={'obey'}
+          />
           <Text
             style={{
-              color: theme.text,
+              color: 'theme.text',
               fontSize: 22,
               textAlign: 'center',
               fontFamily: theme.font2,
@@ -173,7 +166,7 @@ const SignUp = () => {
           </Text>
           <Text
             style={{
-              color: theme.text,
+              color: 'theme.text',
               fontSize: 14,
               textAlign: 'center',
               fontFamily: theme.font4,
@@ -199,7 +192,7 @@ const SignUp = () => {
                 placeholderTextColor="gray"
                 style={[
                   styles.inputSection,
-                  {fontFamily: theme.font4, color: theme.text},
+                  {fontFamily: theme.font4, color: 'theme.text'},
                 ]}
                 maxLength={18}
                 value={username}
@@ -231,7 +224,7 @@ const SignUp = () => {
                 placeholderTextColor="gray"
                 style={[
                   styles.inputSection,
-                  {fontFamily: theme.font4, color: theme.text},
+                  {fontFamily: theme.font4, color: 'theme.text'},
                 ]}
                 maxLength={40}
                 value={email}
@@ -263,7 +256,7 @@ const SignUp = () => {
                 placeholderTextColor="gray"
                 style={[
                   styles.inputSection,
-                  {fontFamily: theme.font4, color: theme.text},
+                  {fontFamily: theme.font4, color: 'theme.text'},
                 ]}
                 maxLength={13}
                 value={contact}
@@ -296,7 +289,7 @@ const SignUp = () => {
                 placeholderTextColor="gray"
                 style={[
                   styles.inputSection,
-                  {fontFamily: theme.font4, color: theme.text},
+                  {fontFamily: theme.font4, color: 'theme.text'},
                 ]}
                 maxLength={20}
                 value={password}
@@ -336,7 +329,7 @@ const SignUp = () => {
                 style={{
                   fontSize: 18,
                   fontFamily: theme.font2,
-                  color: theme.text,
+                  color: 'theme.text',
                 }}>
                 SignUp
               </Text>
@@ -346,7 +339,7 @@ const SignUp = () => {
             <Text
               style={[
                 styles.txt,
-                {fontFamily: theme.font4, color: theme.text},
+                {fontFamily: theme.font4, color: 'theme.text'},
               ]}>
               Already have an account?
             </Text>
@@ -376,7 +369,7 @@ const styles = StyleSheet.create({
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    paddingVertical: 50,
+    paddingVertical: 40,
   },
   section2: {
     width: '100%',
@@ -429,9 +422,9 @@ const styles = StyleSheet.create({
     width: '96%',
     height: 40,
     position: 'absolute',
-    bottom: '1%',
+    top: '0%',
     left: '2%',
-    borderRadius: 3,
+    borderRadius: 5,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -442,7 +435,13 @@ const styles = StyleSheet.create({
   msgtxt: {
     color: 'white',
     fontSize: 16,
-    width: '84%',
+    width: '90%',
     height: 23,
+  },
+  video: {
+    alignItems: 'center',
+    width: 120,
+    height: 120,
+    backgroundColor: 'white',
   },
 });
