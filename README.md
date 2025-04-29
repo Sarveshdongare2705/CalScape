@@ -19,16 +19,6 @@ The Carbon Footprint App is a comprehensive mobile application designed to help 
 - **Educate users** about sustainability practices and environmental impact
 - Foster a **community of environmentally conscious** individuals
 
----
-
-## 👤 About Me
-
-### Name: [Your Name]
-### Institution: VESIT CMPN
-### Internship Period: Summer 2023
-### Mentor: Yugchhaya Galphat
-
----
 
 ## 🛠️ Tech Stack
 
