@@ -53,7 +53,7 @@ The Carbon Footprint App is a comprehensive mobile application designed to help 
 <div style="display: flex; justify-content: space-around;">
   <img src="./readme_assets/home-screen.jpeg" alt="Home Screen" width="30%" />
   <img src="./readme_assets/footprint.jpeg" alt="Footprint Calculator" width="30%" />
-  <img src="./readme_assets/analytics.jpg" alt="Analytics Dashboard" width="30%" />
+  <img src="./readme_assets/analytics.jpeg" alt="Analytics Dashboard" width="30%" />
 </div>
 <br />
 <div style="display: flex; justify-content: space-around;">
